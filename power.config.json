@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "appId": "ae884d30-3cc2-4e61-b464-1a617543855e",
+  "appDisplayName": "CFM Cash Flow Management",
+  "region": "prod",
+  "environmentId": "4b95d697-1abb-e5d1-a5f6-a7f218bcbe49",
+  "description": " ",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {
+    "05067ade-c6cc-4130-a508-4d59fe3834c9": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "displayName": "Microsoft Dataverse",
+      "dataSources": [
+        "commondataserviceforapps"
+      ],
+      "dataSets": {},
+      "xrmConnectionReferenceLogicalName": "cfm_sharedcommondataserviceforapps_39024"
+    }
+  },
+  "databaseReferences": {
+    "default.cds": {
+      "dataSources": {
+        "cashflowcategories": {
+          "entitySetName": "cfm_cashflowcategories",
+          "logicalName": "cfm_cashflowcategory"
+        },
+        "cashflownetmeasures": {
+          "entitySetName": "cfm_cashflownetmeasureses",
+          "logicalName": "cfm_cashflownetmeasures"
+        },
+        "tmshandoffs": {
+          "entitySetName": "cfm_tmshandoffs",
+          "logicalName": "cfm_tmshandoff"
+        },
+        "users": {
+          "entitySetName": "systemusers",
+          "logicalName": "systemuser"
+        },
+        "revenuetargets": {
+          "entitySetName": "cfm_revenuetargets",
+          "logicalName": "cfm_revenuetarget"
+        },
+        "model_drivenapps": {
+          "entitySetName": "appmodules",
+          "logicalName": "appmodule"
+        }
+      },
+      "environmentVariableName": ""
+    }
+  }
+}
