@@ -498,7 +498,12 @@ function handleYearChange(v: string) {
               </div>
             )}
 
-            <div className="section-block" id={`sec-${act.key}`}>
+            <div  onClick={() =>
+                      setCollapsedSections((prev) => ({
+                        ...prev,
+                        [act.key]: !prev[act.key],
+                      }))
+                    } className="section-block" id={`sec-${act.key}`} >
               <div className="sec-hdr">
                 <div className="sec-hdr-left">
                   <div className="sec-hdr-title">{act.label}</div>
