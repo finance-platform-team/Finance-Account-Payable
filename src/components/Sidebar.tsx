@@ -1,4 +1,4 @@
-import { LineChart, ListChecks, FileText, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { LineChart, ListChecks, FileText, Menu } from "lucide-react";
 
 export type PageKey = "cfs" | "tms" | "ap";
 
@@ -16,12 +16,25 @@ export default function Sidebar({
   onToggleCollapsed,
 }: SidebarProps) {
   return (
-    <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
-      <div className="sb-logo">
-        <div className="sb-logo-icon">C</div>
-        <div className="sb-logo-text">CFM Suite</div>
-      </div>
 
+       
+
+
+    <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
+
+<div className="sb-logo" onClick={onToggleCollapsed}>
+  <button
+    className="sb-toggle-btn"
+    onClick={(e) => {
+      e.stopPropagation();
+      onToggleCollapsed();
+    }}
+    title="Toggle sidebar"
+  >
+    <Menu size={15} />
+  </button>
+  <div className="sb-logo-text">CFM Suite</div>
+</div>
       <div className="sb-section">Main</div>
 
       <button
@@ -40,15 +53,10 @@ export default function Sidebar({
         <span>TMS Hand Off</span>
       </button>
 
-      <button className="sb-item" disabled title="قريبًا">
+      <button className="sb-item" disabled title="Soon">
         <FileText size={14} />
         <span>AP Planning</span>
         <span className="sb-badge">Soon</span>
-      </button>
-
-      <button className="sb-collapse-btn" onClick={onToggleCollapsed}>
-        {collapsed ? <ChevronsRight size={14} /> : <ChevronsLeft size={14} />}
-        <span>{collapsed ? "" : "Collapse"}</span>
       </button>
     </aside>
   );
