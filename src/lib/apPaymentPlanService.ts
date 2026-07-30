@@ -1,12 +1,52 @@
 import { Cfm_paymentplansService } from "../generated/services/Cfm_paymentplansService";
 import { Cfm_finance_apsService } from "../generated/services/Cfm_finance_apsService";
 import { Cfm_insurancecompaniesService } from "../generated/services/Cfm_insurancecompaniesService";
+import { Cfm_amounthistoriesService } from "../generated/services/Cfm_amounthistoriesService";
 import type {
   BadgeStyle,
   PPLine,
   PaymentPlanStatusCode,
   TreasuryStatusCode,
 } from "../types/apPaymentPlan";
+
+// ─────────────────────────────────────────────────────────────────────────
+// Raw row shapes — cover only the fields we actually read from each
+// generated service's getAll() response (replaces 'any' with real types).
+// ─────────────────────────────────────────────────────────────────────────
+interface RawFinanceApRow {
+  cfm_vendorenglishname?: string;
+  cfm_dueamount?: number;
+}
+
+interface RawInsuranceCompanyRow {
+  cfm_insurancecompanyid?: string;
+  cfm_buname?: string;
+}
+
+interface RawPaymentPlanRow {
+  cfm_paymentplanid: string;
+  cfm_plancode?: string;
+  cfm_amount?: number;
+  cfm_duedate?: string;
+  cfm_paymentplanstatus?: PaymentPlanStatusCode;
+  cfm_apnotes?: string;
+  cfm_treasurystatus?: TreasuryStatusCode;
+  cfm_treasurycomment?: string;
+  cfm_companyname?: string;
+  cfm_companycodename?: string;
+  cfm_scpriorityname?: string;
+  modifiedon?: string;
+  _cfm_companycode_value?: string;
+  _cfm_scpriority_value?: string;
+}
+
+interface RawAmountHistoryRow {
+  cfm_amounthistoryid: string;
+  cfm_amount?: number;
+  cfm_reasonforthischange?: string;
+  createdon?: string;
+  "_createdby_value@OData.Community.Display.V1.FormattedValue"?: string;
+}
 
 // ─────────────────────────────────────────────────────────────────────────
 // $select — exact match to PP_LINE_FIELDS in CFM_APNew.html, expressed with
@@ -96,7 +136,7 @@ export async function fetchAgingDuesByVendor(): Promise<Record<string, number>> 
     top: 2000,
   });
   const map: Record<string, number> = {};
-  (result.data ?? []).forEach((r: any) => {
+  (result.data ?? []).forEach((r: RawFinanceApRow) => {
     const key = normalizeVendorKey(r.cfm_vendorenglishname);
     if (key) map[key] = Number(r.cfm_dueamount || 0);
   });
@@ -117,7 +157,7 @@ export async function fetchInsuranceCompanyBUs(): Promise<Record<string, string>
     top: 2000,
   });
   const map: Record<string, string> = {};
-  (result.data ?? []).forEach((r: any) => {
+  (result.data ?? []).forEach((r: RawInsuranceCompanyRow) => {
     if (r.cfm_insurancecompanyid) {
       map[r.cfm_insurancecompanyid] = r.cfm_buname || "-";
     }
@@ -131,15 +171,15 @@ export async function fetchInsuranceCompanyBUs(): Promise<Record<string, string>
 // "@OData...FormattedValue" annotations Xrm.WebApi used — this function
 // reads from those instead, but the fallback chain is otherwise identical.
 export function mapPaymentPlanRecord(
-  r: any,
+  r: RawPaymentPlanRow,
   agingDuesByVendor: Record<string, number>,
   insuranceCompanyBUs: Record<string, string>,
 ): PPLine {
   const companyCodeFormatted: string = r.cfm_companycodename || "";
   const companyName: string = r.cfm_companyname || "";
 
-  let vendorName = "-";
-  let companyCode = "-";
+  let vendorName: string;
+  let companyCode: string;
 
   if (r._cfm_companycode_value) {
     companyCode = companyCodeFormatted || "-";
@@ -207,7 +247,7 @@ export async function fetchPaymentPlanLines(): Promise<PPLine[]> {
     }),
   ]);
 
-  return (ppResult.data ?? []).map((r: any) =>
+  return (ppResult.data ?? []).map((r: RawPaymentPlanRow) =>
     mapPaymentPlanRecord(r, agingDuesByVendor, insuranceCompanyBUs),
   );
 }
@@ -339,6 +379,38 @@ export async function updatePaymentPlanAmount(
   } as never);
 }
 
+/** Creates a new Amount History record — mirrors createAmountHistoryRecord(). */
+export async function createAmountHistoryRecord(
+  paymentPlanId: string,
+  amount: number,
+  reason: string,
+): Promise<void> {
+  await Cfm_amounthistoriesService.create({
+    cfm_amount: amount,
+    cfm_reasonforthischange: reason,
+    "cfm_Paymentplan@odata.bind": `/cfm_paymentplans(${paymentPlanId})`,
+  } as never);
+}
+
+/**
+ * Saves an Amount change together with its required reason — mirrors
+ * saveAmountChangeReason(): Step 1 updates cfm_paymentplan (Amount + Due
+ * Date, if provided), Step 2 creates the linked cfm_amounthistory record.
+ * Both steps run in sequence, matching the legacy's error-handling order.
+ */
+export async function saveAmountChangeWithReason(
+  id: string,
+  newAmount: number,
+  reason: string,
+  dueDateIso?: string,
+): Promise<void> {
+  const step1Payload: Record<string, unknown> = { cfm_amount: newAmount };
+  if (dueDateIso) step1Payload.cfm_duedate = dueDateIso;
+
+  await Cfm_paymentplansService.update(id, step1Payload as never);
+  await createAmountHistoryRecord(id, newAmount, reason);
+}
+
 /** Updates a line's AP Notes — mirrors the AP Comment popup save logic. */
 export async function updatePaymentPlanNotes(
   id: string,
@@ -347,4 +419,40 @@ export async function updatePaymentPlanNotes(
   await Cfm_paymentplansService.update(id, {
     cfm_apnotes: notes,
   } as never);
+}
+
+// ── Amount History — mirrors openInitialAmountHistoryModal() ──
+export interface AmountHistoryEntry {
+  id: string;
+  amount: number | null;
+  reason: string | null;
+  createdOn: string | null;
+  userName: string;
+}
+
+export async function fetchAmountHistory(
+  paymentPlanId: string,
+): Promise<AmountHistoryEntry[]> {
+  const result = await Cfm_amounthistoriesService.getAll({
+    select: [
+      "cfm_amounthistoryid",
+      "cfm_amount",
+      "cfm_reasonforthischange",
+      "createdon",
+      "_createdby_value",
+    ],
+    filter: `_cfm_paymentplan_value eq ${paymentPlanId}`,
+    orderBy: ["createdon desc"],
+    maxPageSize: 200,
+    top: 200,
+  });
+  return (result.data ?? []).map((r: RawAmountHistoryRow) => ({
+    id: r.cfm_amounthistoryid,
+    amount: r.cfm_amount ?? null,
+    reason: r.cfm_reasonforthischange || null,
+    createdOn: r.createdon || null,
+    userName:
+      r["_createdby_value@OData.Community.Display.V1.FormattedValue"] ||
+      "Unknown User",
+  }));
 }

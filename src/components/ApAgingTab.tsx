@@ -5,6 +5,7 @@ import {
   fetchApAgingRows,
   fetchApBUChipsForGroup,
   getApAgingVendorKey,
+  sendStagedVendorsToPlan,
 } from "../lib/apAgingService";
 import type {
   ApAgingBracket,
@@ -15,6 +16,7 @@ import type {
 } from "../types/apAging";
 import { AP_PER_PAGE } from "../types/apAging";
 import CreateDecisionModal from "./CreateDecisionModal";
+import { useToast } from "../lib/ToastContext";
 import "../styles/CashFlowStatement.css";
 
 // Formats a number the same way the legacy fmt() helper does inside
@@ -29,6 +31,9 @@ function fmt(v: number | undefined): string {
 }
 
 export default function ApAgingTab() {
+  const { showToast } = useToast();
+  const [sendConfirmOpen, setSendConfirmOpen] = useState(false);
+  const [sending, setSending] = useState(false);
   const [group, setGroup] = useState<ApAgingGroup>("EGY");
   const [vendorSearch, setVendorSearch] = useState("");
   const [tier] = useState<ApAgingTier>("All"); // no functional UI yet — cfm_finance_ap never carries a tier field (see chat history)
@@ -42,6 +47,7 @@ export default function ApAgingTab() {
   // dynamic (cached per-group) for KSA — mirrors apFilter()'s apBuCache.
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedBU("All");
     const cached = buChipCacheRef[group];
     if (cached) {
@@ -87,6 +93,7 @@ export default function ApAgingTab() {
   }, [group, vendorSearch, selectedBU]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadRows();
   }, [loadRows]);
 
@@ -97,6 +104,7 @@ export default function ApAgingTab() {
     : rows;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [bracket, tier]);
 
@@ -133,7 +141,45 @@ export default function ApAgingTab() {
       return next;
     });
   }
+// ── Send to Plan — mirrors sendToPlan()/proceedSendToPlan() ──
+  function openSendToPlanConfirm() {
+    if (Object.keys(staged).length === 0) return;
+    setSendConfirmOpen(true);
+  }
 
+  async function handleConfirmSendToPlan() {
+    const planData = Object.values(staged);
+    setSending(true);
+    try {
+      const { created, updated, errors } = await sendStagedVendorsToPlan(planData);
+
+      if (errors.length > 0) {
+        showToast(
+          "Partial Success",
+          `${created + updated} lines processed. Failed: ${errors.join(", ")}`,
+          "alert",
+        );
+      } else {
+        let succMsg = "";
+        if (created > 0 && updated > 0) {
+          succMsg = `${created} created, ${updated} updated successfully.`;
+        } else if (created > 0) {
+          succMsg = `${created} vendor(s) added as new AP Draft.`;
+        } else {
+          succMsg = `${updated} vendor(s) updated successfully.`;
+        }
+        showToast("Plan Updated", succMsg, "success");
+      }
+
+      setStaged({});
+      setSendConfirmOpen(false);
+    } catch (e) {
+      console.error("Error sending staged vendors to Payment Plan:", e);
+      showToast("Error", "Failed to send vendors to the Payment Plan.", "alert");
+    } finally {
+      setSending(false);
+    }
+  }
   const allOnPageChecked =
     pageRows.length > 0 &&
     pageRows.every((r) => !!staged[getApAgingVendorKey(r)]);
@@ -229,11 +275,11 @@ export default function ApAgingTab() {
           <button className="btn btn-outline" onClick={loadRows}>
             Refresh Data
           </button>
-          <button
+      <button
             className="btn btn-primary"
             disabled={Object.keys(staged).length === 0}
             style={{ padding: "8px 18px" }}
-            title="Wired once the Payment Plan sub-tab is built"
+            onClick={openSendToPlanConfirm}
           >
             Send to Plan ({Object.keys(staged).length})
           </button>
@@ -499,12 +545,43 @@ export default function ApAgingTab() {
         )}
       </div>
 
-      <CreateDecisionModal
+<CreateDecisionModal
         open={decisionOpen}
         sectionName="AP Planning"
         onClose={() => setDecisionOpen(false)}
         onSuccess={() => setDecisionOpen(false)}
       />
+
+      {/* ── Send to Plan confirm modal — mirrors showConfirmModal() in sendToPlan() ── */}
+      {sendConfirmOpen && (
+        <div className="modal-overlay active" onClick={() => !sending && setSendConfirmOpen(false)}>
+          <div className="modal-box" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <div className="modal-title">Send to Plan</div>
+              <button className="modal-close" onClick={() => setSendConfirmOpen(false)} disabled={sending}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ font: "500 12.5px var(--body)", color: "var(--text-body)", lineHeight: 1.8 }}>
+                {Object.keys(staged).length} vendor(s) totalling EGP{" "}
+                {Object.values(staged)
+                  .reduce((s, v) => s + v.initialAmount, 0)
+                  .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                will be added or updated in the Payment Plan as AP Draft.
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-outline" onClick={() => setSendConfirmOpen(false)} disabled={sending}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={handleConfirmSendToPlan} disabled={sending}>
+                {sending ? "Processing…" : "Proceed"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </div>
   );

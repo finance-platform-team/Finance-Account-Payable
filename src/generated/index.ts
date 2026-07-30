@@ -14,6 +14,7 @@ export * as Cfm_insurancecompaniesModel from './models/Cfm_insurancecompaniesMod
 export * as Cfm_paymentplansModel from './models/Cfm_paymentplansModel';
 export * as Cfm_requestbudgetsModel from './models/Cfm_requestbudgetsModel';
 export * as Cfm_revenuetargetsModel from './models/Cfm_revenuetargetsModel';
+export * as Cfm_rolesecuritiesModel from './models/Cfm_rolesecuritiesModel';
 export * as Cfm_scprioritiesModel from './models/Cfm_scprioritiesModel';
 export * as Cfm_tmshandoffsModel from './models/Cfm_tmshandoffsModel';
 export * as CommonModels from './models/CommonModels';
@@ -31,6 +32,7 @@ export * from './services/Cfm_insurancecompaniesService';
 export * from './services/Cfm_paymentplansService';
 export * from './services/Cfm_requestbudgetsService';
 export * from './services/Cfm_revenuetargetsService';
+export * from './services/Cfm_rolesecuritiesService';
 export * from './services/Cfm_scprioritiesService';
 export * from './services/Cfm_tmshandoffsService';
 export * from './services/MicrosoftDataverseService';

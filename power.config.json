@@ -74,6 +74,10 @@
         "requestbudgets": {
           "entitySetName": "cfm_requestbudgets",
           "logicalName": "cfm_requestbudget"
+        },
+        "rolesecurities": {
+          "entitySetName": "cfm_rolesecurities",
+          "logicalName": "cfm_rolesecurity"
         }
       },
       "environmentVariableName": ""

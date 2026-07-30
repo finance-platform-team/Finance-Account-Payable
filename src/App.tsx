@@ -1,31 +1,100 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./styles/AppShell.css";
 import Sidebar, { type PageKey } from "./components/Sidebar";
 import CashFlowStatement from "./components/CashFlowStatement";
 import TmsHandoffPage from "./components/TmsHandoffPage";
 import ApAgingTab from "./components/ApAgingTab";
 import PaymentPlanTab from "./components/PaymentPlanTab";
+import PaymentPlanSCTab from "./components/PaymentPlanSC";
+import AdvancePaymentsTab from "./components/AdvancePayments";
+import TreasuryTab from "./components/TreasuryTab";
+import ConfigurationTab from "./components/Configuration";
 import { ToastProvider } from "./lib/ToastContext";
-function App() {
+import { CurrentUserProvider, useCurrentUser } from "./lib/CurrentUserContext";
+
+// Pages that are gated by role — "config" is intentionally NOT in this list
+// (mirrors the original, where Configuration was never part of roleMenuMap
+// and stayed unrestricted).
+const GATED_PAGES: PageKey[] = ["cfs", "tms", "ap", "pp", "pp-sc", "adv", "treasury"];
+
+function NoPermissionScreen() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        gap: 12,
+        textAlign: "center",
+        padding: 24,
+      }}
+    >
+      <div style={{ font: "800 20px var(--sans)", color: "var(--brand-black)" }}>Access Denied</div>
+      <div style={{ font: "400 14px var(--body)", color: "var(--muted)", maxWidth: 420 }}>
+        You do not have the required permissions to access this dashboard. Please contact your
+        system administrator to assign a role to your account.
+      </div>
+    </div>
+  );
+}
+
+function AppShell() {
   const [activePage, setActivePage] = useState<PageKey>("cfs");
   const [collapsed, setCollapsed] = useState(false);
+  const { loading, noAccess, allowedPages } = useCurrentUser();
+
+  // Mirrors applyRoleSecurity()'s "navigate to first allowed menu" step.
+  useEffect(() => {
+    if (loading || noAccess) return;
+    if (GATED_PAGES.includes(activePage) && !allowedPages.has(activePage)) {
+      const firstAllowed = GATED_PAGES.find((p) => allowedPages.has(p));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (firstAllowed) setActivePage(firstAllowed);
+    }
+  }, [loading, noAccess, allowedPages, activePage]);
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+        <span style={{ font: "600 13px var(--sans)", color: "var(--muted)" }}>Loading…</span>
+      </div>
+    );
+  }
+
+  if (noAccess) return <NoPermissionScreen />;
+
+  return (
+    <div className="app-shell">
+      <Sidebar
+        activePage={activePage}
+        onNavigate={setActivePage}
+        collapsed={collapsed}
+        onToggleCollapsed={() => setCollapsed((c) => !c)}
+      />
+      <div className={`app-main${collapsed ? " sb-collapsed" : ""}`}>
+        {activePage === "cfs" && <CashFlowStatement />}
+        {activePage === "tms" && <TmsHandoffPage />}
+        {activePage === "ap" && <ApAgingTab />}
+        {activePage === "pp" && <PaymentPlanTab />}
+        {activePage === "pp-sc" && <PaymentPlanSCTab />}
+        {activePage === "adv" && <AdvancePaymentsTab />}
+        {activePage === "treasury" && <TreasuryTab />}
+        {activePage === "config" && <ConfigurationTab />}
+      </div>
+    </div>
+  );
+}
+
+function App() {
   return (
     <ToastProvider>
-      <div className="app-shell">
-        <Sidebar
-          activePage={activePage}
-          onNavigate={setActivePage}
-          collapsed={collapsed}
-          onToggleCollapsed={() => setCollapsed((c) => !c)}
-        />
-        <div className={`app-main${collapsed ? " sb-collapsed" : ""}`}>
-          {activePage === "cfs" && <CashFlowStatement />}
-          {activePage === "tms" && <TmsHandoffPage />}
-          {activePage === "ap" && <ApAgingTab />}
-          {activePage === "pp" && <PaymentPlanTab />}
-        </div>
-      </div>
+      <CurrentUserProvider>
+        <AppShell />
+      </CurrentUserProvider>
     </ToastProvider>
   );
 }
+
 export default App;

@@ -226,4 +226,133 @@ export function buildStagedApVendor(row: ApAgingRow): StagedApVendor {
     initialAmount: Number(row.cfm_dueamount || row.cfm_openingbalance || 0),
     raw: row,
   };
+}import { Cfm_paymentplansService } from "../generated/services/Cfm_paymentplansService";
+import { Cfm_insurancecompaniesService } from "../generated/services/Cfm_insurancecompaniesService";
+
+// ─────────────────────────────────────────────────────────────────────────
+// Raw row shapes for the lookups below
+// ─────────────────────────────────────────────────────────────────────────
+interface RawInsuranceCompanyMatch {
+  cfm_insurancecompanyid?: string;
+  cfm_name?: string;
+  cfm_code?: string;
+}
+
+interface RawExistingPlan {
+  cfm_paymentplanid?: string;
+}
+
+export interface SendToPlanResult {
+  created: number;
+  updated: number;
+  errors: string[]; // vendor names that failed
+}
+
+/**
+ * Sends staged AP Aging vendors to the Payment Plan — mirrors
+ * proceedSendToPlan() exactly:
+ *  1. For each vendor, look up cfm_insurancecompany by code OR name to get
+ *     the real company id/name/code.
+ *  2. Check whether a cfm_paymentplan already exists for that company
+ *     (matched by plancode OR companyname).
+ *  3. Create it (or update it) with cfm_paymentplanstatus reset to 1
+ *     (AP Draft).
+ * Continues past a single vendor's failure (matching the original's
+ * per-item try/catch), collecting error vendor names instead of aborting.
+ */
+export async function sendStagedVendorsToPlan(
+  planData: StagedApVendor[],
+): Promise<SendToPlanResult> {
+  let created = 0;
+  let updated = 0;
+  const errors: string[] = [];
+
+  for (const v of planData) {
+    try {
+      // 1. Match cfm_insurancecompany by code or name.
+      let companyId: string | null = null;
+      let companyName = v.vendorName;
+      let companyCode = v.subLedgerCode;
+
+      const compFilterParts: string[] = [];
+      if (v.subLedgerCode && v.subLedgerCode !== "-") {
+        compFilterParts.push(`cfm_code eq '${v.subLedgerCode.replace(/'/g, "''")}'`);
+      }
+      if (v.vendorName && v.vendorName !== "-") {
+        compFilterParts.push(`cfm_name eq '${v.vendorName.replace(/'/g, "''")}'`);
+      }
+
+      if (compFilterParts.length > 0) {
+        try {
+          const compResult = await Cfm_insurancecompaniesService.getAll({
+            select: ["cfm_insurancecompanyid", "cfm_name", "cfm_code"],
+            filter: compFilterParts.join(" or "),
+            top: 1,
+          } as never);
+          const compRows = (compResult.data ?? []) as RawInsuranceCompanyMatch[];
+          if (compRows.length > 0) {
+            const matched = compRows[0];
+            companyId = matched.cfm_insurancecompanyid || null;
+            if (matched.cfm_name) companyName = matched.cfm_name;
+            if (matched.cfm_code) companyCode = matched.cfm_code;
+          }
+        } catch (compErr) {
+          console.warn(`Failed to lookup insurance company for ${v.vendorName}`, compErr);
+        }
+      }
+
+      // 2. Check for an existing Payment Plan for this company.
+      let existingId: string | null = null;
+      const planFilterParts: string[] = [];
+      if (companyCode && companyCode !== "-") {
+        planFilterParts.push(`cfm_plancode eq '${companyCode.replace(/'/g, "''")}'`);
+      }
+      if (companyName && companyName !== "-") {
+        planFilterParts.push(`cfm_companyname eq '${companyName.replace(/'/g, "''")}'`);
+      }
+
+      if (planFilterParts.length > 0) {
+        try {
+          const planResult = await Cfm_paymentplansService.getAll({
+            select: ["cfm_paymentplanid"],
+            filter: planFilterParts.join(" or "),
+            top: 1,
+          } as never);
+          const planRows = (planResult.data ?? []) as RawExistingPlan[];
+          if (planRows.length > 0) {
+            existingId = planRows[0].cfm_paymentplanid || null;
+          }
+        } catch (planLookupErr) {
+          console.warn("Failed to check existing payment plan record:", planLookupErr);
+        }
+      }
+
+      // 3. Build the record and create/update.
+      const recordData: Record<string, unknown> = {
+        cfm_plancode: companyCode || "-",
+        cfm_initialamount: v.initialAmount,
+        cfm_amount: v.initialAmount,
+        cfm_companyname: companyName,
+        cfm_bu: v.bu || "-",
+        cfm_paymentplanstatus: 1, // Reset status to AP Draft
+      };
+
+      if (companyId) {
+        recordData["cfm_CompanyCode@odata.bind"] = `/cfm_insurancecompanies(${companyId})`;
+      }
+
+      if (existingId) {
+        await Cfm_paymentplansService.update(existingId, recordData as never);
+        updated++;
+      } else {
+        await Cfm_paymentplansService.create(recordData as never);
+        created++;
+      }
+    } catch (e) {
+      console.error(`Failed to process plan line for ${v.vendorName}`, e);
+      errors.push(v.vendorName);
+    }
+  }
+
+  return { created, updated, errors };
 }

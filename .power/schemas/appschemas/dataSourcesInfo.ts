@@ -3613,6 +3613,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "cfm_rolesecurities": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_rolesecurityid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cfm_scpriorities": {
     "tableId": "",
     "version": "",
