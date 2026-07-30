@@ -3,7 +3,7 @@
   "appId": "ae884d30-3cc2-4e61-b464-1a617543855e",
   "appDisplayName": "CFM Cash Flow Management",
   "region": "prod",
-  "environmentId": "4b95d697-1abb-e5d1-a5f6-a7f218bcbe49",
+  "environmentId": "9ce6fb09-5b63-e9f4-9185-b707b4b3425e",
   "description": " ",
   "buildPath": "./dist",
   "buildEntryPoint": "index.html",
@@ -46,6 +46,34 @@
         "model_drivenapps": {
           "entitySetName": "appmodules",
           "logicalName": "appmodule"
+        },
+        "finance_aps": {
+          "entitySetName": "cfm_finance_aps",
+          "logicalName": "cfm_finance_ap"
+        },
+        "paymentplans": {
+          "entitySetName": "cfm_paymentplans",
+          "logicalName": "cfm_paymentplan"
+        },
+        "amounthistories": {
+          "entitySetName": "cfm_amounthistories",
+          "logicalName": "cfm_amounthistory"
+        },
+        "scpriorities": {
+          "entitySetName": "cfm_scpriorities",
+          "logicalName": "cfm_scpriority"
+        },
+        "advancedpayments": {
+          "entitySetName": "cfm_advancedpayments",
+          "logicalName": "cfm_advancedpayment"
+        },
+        "insurancecompanies": {
+          "entitySetName": "cfm_insurancecompanies",
+          "logicalName": "cfm_insurancecompany"
+        },
+        "requestbudgets": {
+          "entitySetName": "cfm_requestbudgets",
+          "logicalName": "cfm_requestbudget"
         }
       },
       "environmentVariableName": ""

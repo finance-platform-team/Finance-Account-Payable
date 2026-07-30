@@ -1769,3 +1769,554 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* ═══════════════════════════════════════════════════════════════════════
+   AP AGING — TABLE
+   Converted 1:1 from the inline styles in CFM_APNew.html's AP Aging table
+   (dynamic-ap-aging-tbody / renderDynamicAPAgingTable). Colors, padding,
+   font sizes, and sticky-column behavior match the legacy markup exactly.
+   Reuses .filters-bar / .filter-group / .filter-lbl / .select-wrap /
+   .sel-arrow / .search-box / .bu-chips already defined above for Cash
+   Flow Statement — no need to redefine them here.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ap-aging-section-label {
+  font: 700 10px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ap-aging-section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.ap-aging-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.ap-aging-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+}
+
+.ap-aging-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+  min-width: 1200px;
+  background: var(--surface);
+}
+
+.ap-aging-thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.ap-aging-thead-row {
+  background: var(--canvas);
+  border-bottom: 2px solid var(--border);
+}
+
+/* ── Header cells ── */
+.ap-aging-th {
+  padding: 10px 14px;
+  font: 700 9px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--dim);
+  text-align: left;
+}
+
+.ap-aging-th--right {
+  text-align: right;
+}
+
+.ap-aging-th--amber {
+  color: var(--amber);
+}
+
+.ap-aging-th--danger {
+  color: var(--danger);
+}
+
+.ap-aging-th--check {
+  padding: 10px 10px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  background: var(--canvas);
+  z-index: 3;
+  width: 38px;
+  min-width: 38px;
+}
+
+.ap-aging-th--vendor {
+  text-align: left;
+  position: sticky;
+  left: 38px;
+  background: var(--canvas);
+  z-index: 3;
+}
+
+/* ── Body rows ── */
+.ap-aging-row {
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.ap-aging-row:hover:not(.is-checked) {
+  background: var(--surface-hover);
+}
+
+.ap-aging-row.is-checked {
+  background: var(--gold-soft);
+}
+
+/* ── Body cells ── */
+.ap-aging-td {
+  padding: 10px 14px;
+  font: 600 11px var(--mono);
+  color: var(--brand-black);
+}
+
+.ap-aging-td--right {
+  text-align: right;
+}
+
+.ap-aging-td--center {
+  text-align: center;
+}
+
+.ap-aging-td--sans {
+  font: 600 11px var(--sans);
+}
+
+.ap-aging-td--muted {
+  color: var(--muted);
+}
+
+.ap-aging-td--text-body {
+  color: var(--text-body);
+}
+
+.ap-aging-td--amber {
+  color: var(--amber);
+}
+
+.ap-aging-td--danger {
+  color: var(--danger);
+}
+
+.ap-aging-td--green {
+  color: var(--green-dark);
+}
+
+.ap-aging-td--due {
+  font: 700 12px var(--mono);
+  text-align: right;
+  color: var(--brand-black);
+}
+
+.ap-aging-td--check {
+  padding: 10px 10px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.ap-aging-td--vendor {
+  position: sticky;
+  left: 38px;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.ap-aging-row.is-checked .ap-aging-td--check {
+  background: var(--brand-gold-100);
+}
+
+.ap-aging-row.is-checked .ap-aging-td--vendor {
+  background: var(--brand-gold-100);
+}
+
+.ap-aging-checkbox {
+  cursor: pointer;
+  accent-color: var(--gold-dark);
+  width: 15px;
+  height: 15px;
+}
+
+.ap-aging-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+}
+
+/* ── Pagination bar ── */
+.ap-aging-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--canvas);
+}
+
+.ap-page-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-body);
+  font: 700 11px var(--sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+}
+
+.ap-page-btn:hover:not(:disabled) {
+  border-color: var(--gold-dark);
+}
+
+.ap-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ap-page-btn.is-active {
+  border-color: transparent;
+  background: var(--gold-dark);
+  color: #fff;
+}
+
+.ap-page-dots {
+  padding: 0 4px;
+  font: 600 12px var(--sans);
+  color: var(--dim);
+}
+/* ═══════════════════════════════════════════════════════════════════════
+   PAYMENT PLAN (AP VIEW) — GRID
+   Converted 1:1 from CFM_APNew.html's #pp-lines-body grid (renderPaymentPlanLines)
+   and its ppStageBadge()/ppDecisionBadge() pill styles.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.pp-panel {
+  background: var(--grad-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Exact column widths from the legacy header row */
+.pp-grid-cols {
+  display: grid;
+  grid-template-columns:
+    40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr
+    120px;
+}
+
+.pp-header-row {
+  padding: 10px 16px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+.pp-header-cell {
+  font: 700 9px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--dim);
+}
+
+.pp-header-cell--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--gold-dark);
+  cursor: pointer;
+}
+
+.pp-row {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.pp-row:nth-child(even) {
+  background: var(--canvas);
+}
+
+.pp-row:hover {
+  background: var(--surface-hover);
+}
+
+.pp-row.is-selected {
+  background: var(--gold-soft) !important;
+}
+
+.pp-cell {
+  padding: 14px 16px;
+  font: 400 11.5px var(--body);
+  color: var(--text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-cell--vendor {
+  font: 600 12px var(--sans);
+  color: var(--brand-black);
+}
+
+.pp-cell--right {
+  text-align: right;
+  font: 500 12px var(--mono);
+  padding-right: 16px;
+}
+
+.pp-cell--amount-editable {
+  font: 700 12px var(--mono);
+  color: var(--brand-black);
+}
+
+.pp-cell--muted {
+  color: var(--muted);
+}
+
+.pp-cell--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+}
+
+/* ── Badges (STATUS / Treasury Decision) — colors set inline via style props
+   from getStageBadgeStyle()/getDecisionBadgeStyle() since they're dynamic;
+   this class only carries the shared shape. ── */
+.pp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font: 700 10.5px var(--sans);
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.pp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--canvas);
+}/* ═══════════════════════════════════════════════════════════════════════
+   PAYMENT PLAN (AP VIEW) — GRID
+   Converted 1:1 from CFM_APNew.html's #pp-lines-body grid (renderPaymentPlanLines)
+   and its ppStageBadge()/ppDecisionBadge() pill styles.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.pp-panel {
+  background: var(--grad-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Exact column widths from the legacy header row */
+.pp-grid-cols {
+  display: grid;
+  grid-template-columns:
+    40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr
+    120px;
+}
+
+.pp-header-row {
+  padding: 10px 16px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+.pp-header-cell {
+  font: 700 9px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--dim);
+}
+
+.pp-header-cell--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--gold-dark);
+  cursor: pointer;
+}
+
+.pp-row {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.pp-row:nth-child(even) {
+  background: var(--canvas);
+}
+
+.pp-row:hover {
+  background: var(--surface-hover);
+}
+
+.pp-row.is-selected {
+  background: var(--gold-soft) !important;
+}
+
+.pp-cell {
+  padding: 14px 16px;
+  font: 400 11.5px var(--body);
+  color: var(--text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-cell--vendor {
+  font: 600 12px var(--sans);
+  color: var(--brand-black);
+}
+
+.pp-cell--right {
+  text-align: right;
+  font: 500 12px var(--mono);
+  padding-right: 16px;
+}
+
+.pp-cell--amount-editable {
+  font: 700 12px var(--mono);
+  color: var(--brand-black);
+}
+
+.pp-cell--muted {
+  color: var(--muted);
+}
+
+.pp-cell--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+}
+
+/* ── Badges (STATUS / Treasury Decision) — colors set inline via style props
+   from getStageBadgeStyle()/getDecisionBadgeStyle() since they're dynamic;
+   this class only carries the shared shape. ── */
+.pp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font: 700 10.5px var(--sans);
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.pp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--canvas);
+}
+
+/* ── Budget Request grid ── */
+.budget-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.budget-grid-th {
+  padding: 10px 14px;
+  font: 700 9px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--dim);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.budget-grid-th:first-child {
+  text-align: left;
+}
+
+.budget-grid-td {
+  padding: 10px 14px;
+  font: 500 12px var(--mono);
+  text-align: right;
+  color: var(--text-body);
+  border-top: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.budget-grid-td:first-child {
+  font: 700 12px var(--sans);
+  text-align: left;
+  color: var(--brand-black);
+}
+
+.budget-grid-total-td {
+  font: 700 12px var(--mono);
+  color: var(--gold-dark);
+}
+
+.budget-grid-totals-row td {
+  border-top: 2px solid var(--border);
+  background: var(--canvas);
+  font-weight: 700;
+  color: var(--brand-black);
+}

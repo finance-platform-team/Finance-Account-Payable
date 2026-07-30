@@ -5,9 +5,16 @@
 
 // Models
 export * as AppmodulesModel from './models/AppmodulesModel';
+export * as Cfm_advancedpaymentsModel from './models/Cfm_advancedpaymentsModel';
+export * as Cfm_amounthistoriesModel from './models/Cfm_amounthistoriesModel';
 export * as Cfm_cashflowcategoriesModel from './models/Cfm_cashflowcategoriesModel';
 export * as Cfm_cashflownetmeasuresesModel from './models/Cfm_cashflownetmeasuresesModel';
+export * as Cfm_finance_apsModel from './models/Cfm_finance_apsModel';
+export * as Cfm_insurancecompaniesModel from './models/Cfm_insurancecompaniesModel';
+export * as Cfm_paymentplansModel from './models/Cfm_paymentplansModel';
+export * as Cfm_requestbudgetsModel from './models/Cfm_requestbudgetsModel';
 export * as Cfm_revenuetargetsModel from './models/Cfm_revenuetargetsModel';
+export * as Cfm_scprioritiesModel from './models/Cfm_scprioritiesModel';
 export * as Cfm_tmshandoffsModel from './models/Cfm_tmshandoffsModel';
 export * as CommonModels from './models/CommonModels';
 export * as MicrosoftDataverseModel from './models/MicrosoftDataverseModel';
@@ -15,9 +22,16 @@ export * as SystemusersModel from './models/SystemusersModel';
 
 // Services
 export * from './services/AppmodulesService';
+export * from './services/Cfm_advancedpaymentsService';
+export * from './services/Cfm_amounthistoriesService';
 export * from './services/Cfm_cashflowcategoriesService';
 export * from './services/Cfm_cashflownetmeasuresesService';
+export * from './services/Cfm_finance_apsService';
+export * from './services/Cfm_insurancecompaniesService';
+export * from './services/Cfm_paymentplansService';
+export * from './services/Cfm_requestbudgetsService';
 export * from './services/Cfm_revenuetargetsService';
+export * from './services/Cfm_scprioritiesService';
 export * from './services/Cfm_tmshandoffsService';
 export * from './services/MicrosoftDataverseService';
 export * from './services/SystemusersService';

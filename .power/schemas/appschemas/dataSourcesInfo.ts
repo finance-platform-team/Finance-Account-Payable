@@ -3543,6 +3543,20 @@ export const dataSourcesInfo = {
       }
     }
   },
+  "cfm_advancedpayments": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_advancedpaymentid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "cfm_amounthistories": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_amounthistoryid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cfm_cashflowcategories": {
     "tableId": "",
     "version": "",
@@ -3557,6 +3571,20 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "cfm_finance_aps": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_finance_apid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "cfm_insurancecompanies": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_insurancecompanyid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "appmodules": {
     "tableId": "",
     "version": "",
@@ -3564,10 +3592,31 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "cfm_paymentplans": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_paymentplanid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "cfm_requestbudgets": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_requestbudgetid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cfm_revenuetargets": {
     "tableId": "",
     "version": "",
     "primaryKey": "cfm_revenuetargetid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "cfm_scpriorities": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_scpriorityid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },
