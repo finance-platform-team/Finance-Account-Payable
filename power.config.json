@@ -9,7 +9,6 @@
   "buildEntryPoint": "index.html",
   "localAppUrl": "http://localhost:3000",
   "logoPath": "Default",
-<<<<<<< Updated upstream
   "connectionReferences": {
     "05067ade-c6cc-4130-a508-4d59fe3834c9": {
       "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
@@ -84,8 +83,4 @@
       "environmentVariableName": ""
     }
   }
-=======
-  "connectionReferences": {},
-  "databaseReferences": {}
->>>>>>> Stashed changes
 }

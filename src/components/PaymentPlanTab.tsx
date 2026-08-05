@@ -9,6 +9,7 @@ import {
   updatePaymentPlanNotes,
   updatePaymentPlanStatus,
 } from "../lib/apPaymentPlanService";
+import { History } from "lucide-react";
 import type { AmountHistoryEntry } from "../lib/apPaymentPlanService";
 import type { PPLine } from "../types/apPaymentPlan";
 import { PP_PER_PAGE } from "../types/apPaymentPlan";
@@ -187,6 +188,47 @@ export default function PaymentPlanTab() {
   const totalPages = Math.max(1, Math.ceil(totalRows / PP_PER_PAGE));
   const start = (page - 1) * PP_PER_PAGE;
   const pageRows = filteredLines.slice(start, start + PP_PER_PAGE);
+
+  // ── Pagination — mirrors ApAgingTab's numbered page buttons ──
+  function goToPage(p: number) {
+    if (p < 1 || p > totalPages) return;
+    setPage(p);
+  }
+
+  function renderPageButtons() {
+    const buttons: JSX.Element[] = [];
+    const buildBtn = (p: number) => {
+      const isActive = p === page;
+      buttons.push(
+        <button
+          key={p}
+          onClick={() => goToPage(p)}
+          className={`ap-page-btn${isActive ? " is-active" : ""}`}
+        >
+          {p}
+        </button>,
+      );
+    };
+    const addDots = (key: string) =>
+      buttons.push(
+        <span key={key} className="ap-page-dots">
+          …
+        </span>,
+      );
+
+    if (totalPages <= 7) {
+      for (let p = 1; p <= totalPages; p++) buildBtn(p);
+    } else {
+      buildBtn(1);
+      const s = Math.max(2, page - 1);
+      const e = Math.min(totalPages - 1, page + 1);
+      if (s > 2) addDots("dots-start");
+      for (let p = s; p <= e; p++) buildBtn(p);
+      if (e < totalPages - 1) addDots("dots-end");
+      buildBtn(totalPages);
+    }
+    return buttons;
+  }
 
   // ── Selection — mirrors toggleSelectRowPP / toggleSelectAllPP ──
   function toggleRow(id: string, checked: boolean) {
@@ -886,7 +928,8 @@ export default function PaymentPlanTab() {
                           fontSize: 12,
                         }}
                       >
-                        🕓
+                          <History size={14} />
+
                       </button>
                     </div>
                     {isChanged && (
@@ -1338,7 +1381,8 @@ export default function PaymentPlanTab() {
                     marginBottom: 12,
                   }}
                 >
-                  🕓 Amount Change Timeline
+                    <History size={14} />
+ Amount Change Timeline
                 </div>
 
                 {historyLoading ? (

@@ -35,6 +35,7 @@ interface RawPaymentPlanRow {
   cfm_companyname?: string;
   cfm_companycodename?: string;
   cfm_scpriorityname?: string;
+   cfm_bu?: string; 
   modifiedon?: string;
   _cfm_companycode_value?: string;
   _cfm_scpriority_value?: string;
@@ -64,6 +65,7 @@ const PP_LINE_SELECT: string[] = [
   "cfm_treasurystatus",
   "cfm_treasurycomment",
   "cfm_companyname",
+  "cfm_bu",
   "modifiedon",
   "_cfm_companycode_value",
   "_cfm_scpriority_value",
@@ -210,10 +212,10 @@ export function mapPaymentPlanRecord(
     category,
     code: companyCode,
     vendor: vendorName,
-    bu:
+    bu: r.cfm_bu || (
       (r._cfm_companycode_value &&
-        insuranceCompanyBUs[r._cfm_companycode_value]) ||
-      "-",
+        insuranceCompanyBUs[r._cfm_companycode_value]) || "-"
+    ),
     modifiedOn: r.modifiedon || null,
     initialAmount: agingInitialAmount,
     plannedAmount: agingInitialAmount,
