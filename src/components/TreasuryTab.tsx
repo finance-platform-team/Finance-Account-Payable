@@ -1,6 +1,6 @@
 // src/components/TreasuryTab.tsx
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import {
   fetchTreasuryPaymentPlanLines,
   fetchSinglePaymentPlanLine,
@@ -126,6 +126,47 @@ export default function TreasuryTab() {
   const totalPages = Math.max(1, Math.ceil(totalRows / T_PER_PAGE));
   const start = (page - 1) * T_PER_PAGE;
   const pageRows = filteredLines.slice(start, start + T_PER_PAGE);
+
+  // ── Pagination — mirrors ApAgingTab's numbered page buttons ──
+  function goToPage(p: number) {
+    if (p < 1 || p > totalPages) return;
+    setPage(p);
+  }
+
+  function renderPageButtons() {
+    const buttons: JSX.Element[] = [];
+    const buildBtn = (p: number) => {
+      const isActive = p === page;
+      buttons.push(
+        <button
+          key={p}
+          onClick={() => goToPage(p)}
+          className={`ap-page-btn${isActive ? " is-active" : ""}`}
+        >
+          {p}
+        </button>,
+      );
+    };
+    const addDots = (key: string) =>
+      buttons.push(
+        <span key={key} className="ap-page-dots">
+          …
+        </span>,
+      );
+
+    if (totalPages <= 7) {
+      for (let p = 1; p <= totalPages; p++) buildBtn(p);
+    } else {
+      buildBtn(1);
+      const s = Math.max(2, page - 1);
+      const e = Math.min(totalPages - 1, page + 1);
+      if (s > 2) addDots("dots-start");
+      for (let p = s; p <= e; p++) buildBtn(p);
+      if (e < totalPages - 1) addDots("dots-end");
+      buildBtn(totalPages);
+    }
+    return buttons;
+  }
 
   // ── Edit modal — mirrors openTreasuryPPLModal(): show cached row
   // immediately, then refresh the single record from Dataverse. ──
@@ -329,22 +370,21 @@ export default function TreasuryTab() {
               <span style={{ font: "400 12px var(--body)", color: "var(--muted)" }}>
                 Page {page} of {totalPages} · {totalRows} lines
               </span>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <button
-                  className="btn btn-outline"
+                  className="ap-page-btn"
                   disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  style={{ padding: "6px 14px", fontSize: 11 }}
+                  onClick={() => goToPage(page - 1)}
                 >
-                  ← Prev
+                  ‹
                 </button>
+                {renderPageButtons()}
                 <button
-                  className="btn btn-outline"
+                  className="ap-page-btn"
                   disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  style={{ padding: "6px 14px", fontSize: 11 }}
+                  onClick={() => goToPage(page + 1)}
                 >
-                  Next →
+                  ›
                 </button>
               </div>
             </div>

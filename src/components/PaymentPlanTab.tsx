@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import {
   fetchAmountHistory,
   fetchPaymentPlanLines,
@@ -1002,22 +1002,21 @@ export default function PaymentPlanTab() {
               <span style={{ font: "400 12px var(--body)", color: "var(--muted)" }}>
                 Page {page} of {totalPages} · {totalRows} records
               </span>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <button
-                  className="btn btn-outline"
+                  className="ap-page-btn"
                   disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  style={{ padding: "6px 14px", fontSize: 11 }}
+                  onClick={() => goToPage(page - 1)}
                 >
-                  ← Prev
+                  ‹
                 </button>
+                {renderPageButtons()}
                 <button
-                  className="btn btn-outline"
+                  className="ap-page-btn"
                   disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  style={{ padding: "6px 14px", fontSize: 11 }}
+                  onClick={() => goToPage(page + 1)}
                 >
-                  Next →
+                  ›
                 </button>
               </div>
             </div>
