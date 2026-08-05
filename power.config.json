@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "appId": "ae884d30-3cc2-4e61-b464-1a617543855e",
-  "appDisplayName": "CFM Cash Flow Management",
+  "appId": "a2757149-fa1b-43eb-9820-6eabca94b3b7",
+  "appDisplayName": "CFM Cash Flow Management and AP ",
   "region": "prod",
   "environmentId": "9ce6fb09-5b63-e9f4-9185-b707b4b3425e",
   "description": " ",
@@ -9,6 +9,7 @@
   "buildEntryPoint": "index.html",
   "localAppUrl": "http://localhost:3000",
   "logoPath": "Default",
+<<<<<<< Updated upstream
   "connectionReferences": {
     "05067ade-c6cc-4130-a508-4d59fe3834c9": {
       "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
@@ -83,4 +84,8 @@
       "environmentVariableName": ""
     }
   }
+=======
+  "connectionReferences": {},
+  "databaseReferences": {}
+>>>>>>> Stashed changes
 }
