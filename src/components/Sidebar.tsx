@@ -5,12 +5,16 @@ export type PageKey = "cfs" | "tms" | "ap" | "pp" | "pp-sc" | "adv" | "treasury"
   onNavigate: (page: PageKey) => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 export default function Sidebar({
   activePage,
   onNavigate,
   collapsed,
   onToggleCollapsed,
+  mobileOpen,
+  onCloseMobile,
 }: SidebarProps) {
   const { loading: rolesLoading, allowedPages } = useCurrentUser();
 
@@ -39,8 +43,12 @@ export default function Sidebar({
   }
 
   return (
-
-    <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
+    <>
+    <div
+      className={`sidebar-overlay${mobileOpen ? " active" : ""}`}
+      onClick={onCloseMobile}
+    />
+    <aside className={`sidebar${collapsed ? " collapsed" : ""}${mobileOpen ? " mobile-open" : ""}`}>
 <div className="sb-logo" onClick={onToggleCollapsed}>
   <button
     className="sb-toggle-btn"
@@ -139,5 +147,6 @@ export default function Sidebar({
         <span>Configuration</span>
       </button>
     </aside>
+    </>
   );
 }

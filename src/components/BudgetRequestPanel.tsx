@@ -22,6 +22,7 @@ export default function BudgetRequestPanel() {
   const [region, setRegion] = useState<BudgetRegion>("Egypt");
   const [grid, setGrid] = useState<BudgetGrid | null>(null);
   const [loading, setLoading] = useState(false);
+  const [noDataMessage, setNoDataMessage] = useState<string | null>(null);
   const [decisionOpen, setDecisionOpen] = useState(false);
   const { showToast } = useToast();
 
@@ -42,17 +43,18 @@ export default function BudgetRequestPanel() {
     setLoading(true);
     try {
       const rows = await fetchBudgetRequests(year, region);
+      // mirrors budgetRowsHaveAnyData(): fetchBudgetRequests only returns a
+      // row per *existing* cfm_requestbudget record, so an empty array means
+      // no record has ever been created for this Year+Region yet.
+      if (rows.length === 0) {
+        setGrid(null);
+        setNoDataMessage(`No Budget Available for ${region} ${year}.`);
+        return;
+      }
       const buList = getBUNamesForRegion(region);
       const newGrid = buildBudgetGrid(rows, buList);
-      // TEMP DEBUG (safe/small) — confirms the component's state actually
-      // reflects fetched data.
-      console.log("BudgetRequestPanel grid built:", {
-        rawRowCount: rows.length,
-        gridRowCount: newGrid.rows.length,
-        firstRowTotal: newGrid.rows[0]?.total,
-        totalsRowTotal: newGrid.totalsRow.total,
-      });
       setGrid(newGrid);
+      setNoDataMessage(null);
     } catch (e) {
       console.error("Error loading budget request table:", e);
     } finally {
@@ -142,6 +144,8 @@ export default function BudgetRequestPanel() {
       <div style={{ padding: 18, overflowX: "auto" }}>
         {loading ? (
           <div className="pp-empty">Loading…</div>
+        ) : noDataMessage ? (
+          <div className="pp-empty">{noDataMessage}</div>
         ) : !grid ? (
           <div className="pp-empty">Select a year and region.</div>
         ) : (
@@ -163,11 +167,11 @@ export default function BudgetRequestPanel() {
                   <td className="budget-grid-td">{row.bu}</td>
                   {MONTH_KEYS.map((m) => (
                     <td key={m} className="budget-grid-td">
-                      {row.amounts[m] ? `EGP ${fmt(row.amounts[m])}` : "-"}
+                      {row.amounts[m] ? fmt(row.amounts[m]) : "-"}
                     </td>
                   ))}
                   <td className="budget-grid-td budget-grid-total-td">
-                    EGP {fmt(row.total)}
+                    {fmt(row.total)}
                   </td>
                 </tr>
               ))}
@@ -175,11 +179,11 @@ export default function BudgetRequestPanel() {
                 <td className="budget-grid-td">TOTAL</td>
                 {MONTH_KEYS.map((m) => (
                   <td key={m} className="budget-grid-td">
-                    EGP {fmt(grid.totalsRow.amounts[m])}
+                    {fmt(grid.totalsRow.amounts[m])}
                   </td>
                 ))}
                 <td className="budget-grid-td budget-grid-total-td">
-                  EGP {fmt(grid.totalsRow.total)}
+                  {fmt(grid.totalsRow.total)}
                 </td>
               </tr>
             </tbody>

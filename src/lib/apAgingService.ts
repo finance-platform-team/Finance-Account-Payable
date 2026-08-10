@@ -62,14 +62,21 @@ function escapeODataString(value: string): string {
  * query (used to build the KSA chip list, since KSA has no fixed BU set).
  */
 export async function fetchDistinctApBUs(): Promise<string[]> {
-  const result = await Cfm_finance_apsService.getAll({
-    select: ["cfm_bushortname"],
-    maxPageSize: 5000,
-  });
   const set = new Set<string>();
-  (result.data ?? []).forEach((r: any) => {
-    if (r.cfm_bushortname) set.add(r.cfm_bushortname);
-  });
+  let skipToken: string | undefined;
+
+  do {
+    const result = await Cfm_finance_apsService.getAll({
+      select: ["cfm_bushortname"],
+      maxPageSize: 5000,
+      skipToken,
+    });
+    (result.data ?? []).forEach((r: any) => {
+      if (r.cfm_bushortname) set.add(r.cfm_bushortname);
+    });
+    skipToken = result.skipToken;
+  } while (skipToken);
+
   return Array.from(set).sort();
 }
 
@@ -142,6 +149,14 @@ export function buildApAgingFilter(
  * Fetches AP Aging rows from cfm_finance_ap with server-side Group/BU +
  * search filtering — mirrors fetchAPAgingData(), extended with the BU-chip
  * override described above.
+ *
+ * `Cfm_finance_apsService.getAll()` only returns a single Dataverse page
+ * (capped at maxPageSize) despite its name — it hands back a `skipToken`
+ * for the next page but never follows it. For a broad filter like "All
+ * Egypt" (AMH+ASH+SMH combined) the match set can exceed one page, so we
+ * loop on skipToken here until Dataverse stops returning one, otherwise
+ * later pages of vendors are silently dropped before the client-side
+ * Aging Bracket filter even runs.
  */
 export async function fetchApAgingRows(
   group: ApAgingGroup,
@@ -150,13 +165,22 @@ export async function fetchApAgingRows(
 ): Promise<ApAgingRow[]> {
   const filter = buildApAgingFilter(group, vendorSearch, bu);
 
-  const result = await Cfm_finance_apsService.getAll({
-    select: AP_AGING_SELECT,
-    filter,
-    maxPageSize: 5000,
-  });
+  const rows: ApAgingRow[] = [];
+  let skipToken: string | undefined;
 
-  return (result.data ?? []) as unknown as ApAgingRow[];
+  do {
+    const result = await Cfm_finance_apsService.getAll({
+      select: AP_AGING_SELECT,
+      filter,
+      maxPageSize: 5000,
+      skipToken,
+    });
+
+    rows.push(...((result.data ?? []) as unknown as ApAgingRow[]));
+    skipToken = result.skipToken;
+  } while (skipToken);
+
+  return rows;
 }
 
 /**

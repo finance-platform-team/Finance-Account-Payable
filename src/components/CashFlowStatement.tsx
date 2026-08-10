@@ -4,7 +4,6 @@ import { fetchCashFlowData } from "../lib/dataverseClient";
 import {
   aggregateMeasures,
   getItemsForActivity,
-  resolveCurrency,
   formatNumberParts,
   MONTH_NAMES,
 } from "../lib/cashflowUtils";
@@ -220,7 +219,6 @@ const [collapsedSections, setCollapsedSections] = useState<Record<string, boolea
   );
 
   const netChange = agg.netOperating + agg.netInvesting + agg.netFinancing;
-  const currency = resolveCurrency(selectedGroup);
 
   const freeCashFlow = agg.beginningBalance + agg.netOperating + agg.netInvesting;
 
@@ -376,14 +374,12 @@ function handleYearChange(v: string) {
         month={selectedMonth}
         bu={selectedBU}
         availableBUs={availableBUs}
-        currency={currency}
       />
 
       {/* ── ملخص الأرصدة ── */}
       <div className="summary-bar">        <div className="sum-cell">
           <div className="sum-label">Opening Balance</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span className="sum-currency">{currency}</span>
             <span className="sum-val">
               <Num value={agg.beginningBalance} />
             </span>
@@ -396,7 +392,6 @@ function handleYearChange(v: string) {
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <span className="sum-currency">
               {netChange >= 0 ? "+ " : "- "}
-              {currency}
             </span>
             <span className={`sum-val ${netChange >= 0 ? "positive" : ""}`}>
               <Num value={Math.abs(netChange)} />
@@ -408,7 +403,6 @@ function handleYearChange(v: string) {
         <div className="sum-cell ending">
           <div className="sum-label">Ending Balance</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span className="sum-currency">{currency}</span>
             <span className="sum-val">
               <Num value={agg.endingBalance} />
             </span>
@@ -442,7 +436,7 @@ function handleYearChange(v: string) {
               <span className="act-cell-name">{act.key[0].toUpperCase() + act.key.slice(1)}</span>
               <span className={`act-cell-val ${netVal >= 0 ? "pos" : "neg"}`}>
                 {netVal >= 0 ? "+ " : "- "}
-                {currency} <Num value={Math.abs(netVal)} />
+                <Num value={Math.abs(netVal)} />
               </span>
             </button>
           );
@@ -493,46 +487,51 @@ function handleYearChange(v: string) {
                   }}
                 >
                   {freeCashFlow >= 0 ? "+" : "-"}
-                  {currency} <Num value={Math.abs(freeCashFlow)} />
+                  <Num value={Math.abs(freeCashFlow)} />
                 </div>
               </div>
             )}
 
-            <div  onClick={() =>
-                      setCollapsedSections((prev) => ({
-                        ...prev,
-                        [act.key]: !prev[act.key],
-                      }))
-                    } className="section-block" id={`sec-${act.key}`} >
-              <div className="sec-hdr">
+            <div className="section-block" id={`sec-${act.key}`} >
+              <div
+                className="sec-hdr"
+                onClick={() =>
+                  setCollapsedSections((prev) => ({
+                    ...prev,
+                    [act.key]: !prev[act.key],
+                  }))
+                }
+              >
                 <div className="sec-hdr-left">
                   <div className="sec-hdr-title">{act.label}</div>
                   <div className="sec-hdr-sub">{act.sub}</div>
                 </div>
-              
+
               <div className="sec-hdr-right">
                   <div className={`net-pill ${netVal >= 0 ? "pos" : "neg"}`}>
                     <span className="net-pill-label">Net</span>
                     {netVal >= 0 ? "+ " : "- "}
-                    {currency} <Num value={Math.abs(netVal)} />
+                    <Num value={Math.abs(netVal)} />
                   </div>
              <button
                     className="decision-btn"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setDecisionSection(act.label);
                       setDecisionModalOpen(true);
                     }}
                   >
-                    <ClipboardCheck size={12} /> Task Decision
+                    <ClipboardCheck size={12} /> <span>Task Decision</span>
                   </button>
                   <button
                     className="sec-collapse-btn"
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setCollapsedSections((prev) => ({
                         ...prev,
                         [act.key]: !prev[act.key],
-                      }))
-                    }
+                      }));
+                    }}
                     aria-label="Toggle section"
                   >
                     {collapsedSections[act.key] ? (

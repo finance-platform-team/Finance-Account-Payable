@@ -649,14 +649,14 @@ async function openScPriorityModal(row: PPLine) {
                       {r.bu}
                     </div>
                     <div className="pp-cell pp-cell--right">
-                      {r.plannedAmount != null ? `EGP ${fmtAmountEnUS(r.plannedAmount)}` : "-"}
+                      {r.plannedAmount != null ? fmtAmountEnUS(r.plannedAmount) : "-"}
                     </div>
                     <div
                       className="pp-cell pp-cell--right"
                       style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}
                     >
                       <span style={{ font: "700 12.5px var(--mono)", color: "var(--brand-black)" }}>
-                        {r.currentAmount != null ? `EGP ${fmtAmountEnUS(r.currentAmount)}` : "-"}
+                        {r.currentAmount != null ? fmtAmountEnUS(r.currentAmount) : "-"}
                       </span>
                       {variance != null && variance !== 0 && (
                         <span
@@ -744,6 +744,7 @@ async function openScPriorityModal(row: PPLine) {
                               setScForm((f) => ({ ...f, priorityStatus: e.target.value }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="123200000">Low</option>
                             <option value="123200001">Medium</option>
                             <option value="123200002">High</option>
@@ -767,13 +768,13 @@ async function openScPriorityModal(row: PPLine) {
                       <div className="sc-detail-row">
                         <span className="sc-detail-label">Recommended Action</span>
                         <div className="sc-detail-value">
-                          {/* Display-only — NOT persisted on Save, matching the original. */}
                           <select
                             value={scForm.recommendedAction}
                             onChange={(e) =>
                               setScForm((f) => ({ ...f, recommendedAction: e.target.value }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="4">Pay First</option>
                             <option value="1">Pay Partial</option>
                             <option value="2">Hold</option>
@@ -809,13 +810,13 @@ async function openScPriorityModal(row: PPLine) {
                       <div className="sc-detail-row">
                         <span className="sc-detail-label">Supply Risk if Not Paid</span>
                         <div className="sc-detail-value">
-                          {/* Display-only — NOT persisted on Save, matching the original. */}
                           <select
                             value={scForm.supplyRisk}
                             onChange={(e) =>
                               setScForm((f) => ({ ...f, supplyRisk: e.target.value }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="1">High Risk</option>
                             <option value="2">No Risk</option>
                             <option value="3">Medium Risk</option>
@@ -832,6 +833,7 @@ async function openScPriorityModal(row: PPLine) {
                               setScForm((f) => ({ ...f, vendorCriticality: e.target.value }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="1">Critical Vendor</option>
                             <option value="2">Strategic Vendor</option>
                             <option value="3">Normal Vendor</option>
@@ -854,6 +856,7 @@ async function openScPriorityModal(row: PPLine) {
                               }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                           </select>
@@ -871,6 +874,7 @@ async function openScPriorityModal(row: PPLine) {
                               }))
                             }
                           >
+                            <option value="">— Not set —</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                           </select>

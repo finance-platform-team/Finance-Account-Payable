@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 import "./styles/AppShell.css";
 import Sidebar, { type PageKey } from "./components/Sidebar";
 import CashFlowStatement from "./components/CashFlowStatement";
@@ -43,6 +44,7 @@ function NoPermissionScreen() {
 function AppShell() {
   const [activePage, setActivePage] = useState<PageKey>("cfs");
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { loading, noAccess, allowedPages } = useCurrentUser();
 
   // Mirrors applyRoleSecurity()'s "navigate to first allowed menu" step.
@@ -67,11 +69,23 @@ function AppShell() {
 
   return (
     <div className="app-shell">
+      <button
+        className="sb-mobile-toggle"
+        onClick={() => setMobileSidebarOpen(true)}
+        aria-label="Open menu"
+      >
+        <Menu size={18} />
+      </button>
       <Sidebar
         activePage={activePage}
-        onNavigate={setActivePage}
+        onNavigate={(page) => {
+          setActivePage(page);
+          setMobileSidebarOpen(false);
+        }}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((c) => !c)}
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
       />
       <div className={`app-main${collapsed ? " sb-collapsed" : ""}`}>
         {activePage === "cfs" && <CashFlowStatement />}

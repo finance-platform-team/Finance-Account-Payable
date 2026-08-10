@@ -332,6 +332,6 @@ export async function fetchScPriorityForView(
     partialAcceptedLabel:
       data.partialAccepted == null ? "—" : data.partialAccepted ? "Yes" : "No",
     scOwner: data.scOwner || "—",
-    responseDateTime: formatScDisplayDateTime(data.responseDateTime),
+    responseDateTime: formatScDisplayDateTime(data.createdOn),
   };
 }

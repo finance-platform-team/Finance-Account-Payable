@@ -312,7 +312,7 @@ export default function AdvancePaymentsTab() {
       );
       showToast(
         form.editId ? "Advance Request Resubmitted" : "Advance Request Submitted",
-        `${form.name.trim()} — EGP ${parsedAmount.toLocaleString()}`,
+        `${form.name.trim()} — ${parsedAmount.toLocaleString()}`,
         "success",
       );
       setConfirmOpen(false);
@@ -617,7 +617,7 @@ export default function AdvancePaymentsTab() {
                       {req.bu || "-"}
                     </div>
                     <div className="pp-cell" style={{ font: "700 12px var(--mono)", color: "var(--gold-dark)", textAlign: "center" }}>
-                      EGP {fmtAmountEnUS(req.amount)}
+                      {fmtAmountEnUS(req.amount)}
                     </div>
                     <div className="pp-cell">{req.date}</div>
                     <div className="pp-cell pp-cell--muted">{req.notes || "-"}</div>
@@ -696,7 +696,7 @@ export default function AdvancePaymentsTab() {
               <div className="modal-body">
                 <div style={{ font: "500 12.5px var(--body)", color: "var(--text-body)", lineHeight: 1.8 }}>
                   <div><strong>Company:</strong> {form.name.trim()} ({form.code.trim()})</div>
-                  <div><strong>Amount:</strong> EGP {fmtAmountEnUS(parseFloat(form.amount.replace(/,/g, "")) || 0)}</div>
+                  <div><strong>Amount:</strong> {fmtAmountEnUS(parseFloat(form.amount.replace(/,/g, "")) || 0)}</div>
                   <div><strong>Date:</strong> {form.date}</div>
                   <div style={{ marginTop: 10, color: "var(--muted)", fontSize: 11.5 }}>
                     {form.editId
@@ -742,7 +742,7 @@ export default function AdvancePaymentsTab() {
                 <div className="adv-review-field">
                   <label>Amount</label>
                   <div style={{ font: "700 13px var(--mono)", color: "var(--gold-dark)" }}>
-                    EGP {fmtAmountEnUS(reviewTarget.amount)}
+                    {fmtAmountEnUS(reviewTarget.amount)}
                   </div>
                 </div>
                 <div className="adv-review-field">

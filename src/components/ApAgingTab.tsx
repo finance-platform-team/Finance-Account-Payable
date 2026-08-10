@@ -377,7 +377,7 @@ export default function ApAgingTab() {
 
       {/* ── AP AGING TABLE ── */}
       <div className="ap-aging-section-label">
-        AP Aging from DotCare — by Vendor (EGP)
+        AP Aging from DotCare — by Vendor
       </div>
 
       <div className="ap-aging-panel">
@@ -564,7 +564,7 @@ export default function ApAgingTab() {
             </div>
             <div className="modal-body">
               <div style={{ font: "500 12.5px var(--body)", color: "var(--text-body)", lineHeight: 1.8 }}>
-                {Object.keys(staged).length} vendor(s) totalling EGP{" "}
+                {Object.keys(staged).length} vendor(s) totalling{" "}
                 {Object.values(staged)
                   .reduce((s, v) => s + v.initialAmount, 0)
                   .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}

@@ -393,23 +393,23 @@ export default function TreasuryBudgetPanel() {
                             }}
                           />
                         ) : row.amounts[m] ? (
-                          `EGP ${fmt(row.amounts[m])}`
+                          fmt(row.amounts[m])
                         ) : (
                           "-"
                         )}
                       </td>
                     ))}
-                    <td className="budget-grid-td budget-grid-total-td">EGP {fmt(row.total)}</td>
+                    <td className="budget-grid-td budget-grid-total-td">{fmt(row.total)}</td>
                   </tr>
                 ))}
                 <tr className="budget-grid-totals-row">
                   <td className="budget-grid-td">TOTAL</td>
                   {MONTH_KEYS.map((m) => (
                     <td key={m} className="budget-grid-td">
-                      EGP {fmt(grid.totalsRow.amounts[m])}
+                      {fmt(grid.totalsRow.amounts[m])}
                     </td>
                   ))}
-                  <td className="budget-grid-td budget-grid-total-td">EGP {fmt(grandTotal)}</td>
+                  <td className="budget-grid-td budget-grid-total-td">{fmt(grandTotal)}</td>
                 </tr>
               </tbody>
             </table>

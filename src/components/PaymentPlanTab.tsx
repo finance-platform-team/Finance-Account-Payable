@@ -871,7 +871,7 @@ export default function PaymentPlanTab() {
                     {r.bu}
                   </div>
                   <div className="pp-cell pp-cell--right">
-                    {r.plannedAmount != null ? `EGP ${fmtAmountEnUS(r.plannedAmount)}` : "-"}
+                    {r.plannedAmount != null ? fmtAmountEnUS(r.plannedAmount) : "-"}
                   </div>
                   <div
                     className="pp-cell pp-cell--right"
@@ -1149,7 +1149,7 @@ export default function PaymentPlanTab() {
                       className="field-input"
                       type="text"
                       readOnly
-                      value={`EGP ${fmtAmountEnUS(pendingAmountChange.newAmount)}`}
+                      value={fmtAmountEnUS(pendingAmountChange.newAmount)}
                       style={{ color: "var(--muted)", background: "var(--canvas)", fontWeight: 600 }}
                     />
                   </div>
@@ -1366,7 +1366,7 @@ export default function PaymentPlanTab() {
                   </span>
                   <span style={{ font: "700 15px var(--mono)", color: "var(--brand-black)" }}>
                     {historyTarget.initialAmount != null
-                      ? `EGP ${fmtAmountEnUS(historyTarget.initialAmount)}`
+                      ? fmtAmountEnUS(historyTarget.initialAmount)
                       : "—"}
                   </span>
                 </div>
@@ -1412,7 +1412,7 @@ export default function PaymentPlanTab() {
                       </div>
                       <div style={{ font: "700 13px var(--mono)", color: "var(--brand-black)", marginTop: 2 }}>
                         {historyTarget.initialAmount != null
-                          ? `EGP ${fmtAmountEnUS(historyTarget.initialAmount)}`
+                          ? fmtAmountEnUS(historyTarget.initialAmount)
                           : "—"}
                       </div>
                       <div style={{ font: "400 11px var(--body)", color: "var(--dim)", fontStyle: "italic", marginTop: 4 }}>
@@ -1449,7 +1449,7 @@ export default function PaymentPlanTab() {
                           </div>
                           <div style={{ font: "500 11.5px var(--body)", color: "var(--text-body)", marginTop: 6 }}>
                             <span style={{ fontWeight: 700, color: "var(--gold-dark)" }}>Amount:</span>{" "}
-                            {h.amount != null ? `EGP ${fmtAmountEnUS(h.amount)}` : "-"}
+                            {h.amount != null ? fmtAmountEnUS(h.amount) : "-"}
                           </div>
                           <div style={{ font: "500 11.5px var(--body)", color: "var(--text-body)", marginTop: 2 }}>
                             <span style={{ fontWeight: 700, color: "var(--dim)" }}>Reason:</span>{" "}

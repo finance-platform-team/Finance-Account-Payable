@@ -346,10 +346,10 @@ export default function TreasuryTab() {
                     {r.bu || "-"}
                   </div>
                   <div className="pp-cell pp-cell--right" style={{ font: "700 12px var(--mono)", color: "var(--brand-black)" }}>
-                    {r.plannedAmount != null ? `EGP ${fmtAmountEnUS(r.plannedAmount)}` : "-"}
+                    {r.plannedAmount != null ? fmtAmountEnUS(r.plannedAmount) : "-"}
                   </div>
                   <div className="pp-cell pp-cell--right" style={{ font: "700 12px var(--mono)", color: "var(--gold-dark)" }}>
-                    {r.currentAmount != null ? `EGP ${fmtAmountEnUS(r.currentAmount)}` : "-"}
+                    {r.currentAmount != null ? fmtAmountEnUS(r.currentAmount) : "-"}
                   </div>
                   <div className="pp-cell">{r.due || "-"}</div>
                   <div className="pp-cell pp-cell--muted">{r.notes || "-"}</div>
@@ -429,7 +429,7 @@ export default function TreasuryTab() {
                       className="field-input"
                       type="text"
                       disabled
-                      value={editRow.plannedAmount != null ? `EGP ${fmtAmountEnUS(editRow.plannedAmount)}` : "-"}
+                      value={editRow.plannedAmount != null ? fmtAmountEnUS(editRow.plannedAmount) : "-"}
                       style={{ background: "var(--canvas)", color: "var(--muted)", fontWeight: 700, fontFamily: "var(--mono)" }}
                     />
                   </div>
@@ -439,7 +439,7 @@ export default function TreasuryTab() {
                       className="field-input"
                       type="text"
                       disabled
-                      value={editRow.currentAmount != null ? `EGP ${fmtAmountEnUS(editRow.currentAmount)}` : "-"}
+                      value={editRow.currentAmount != null ? fmtAmountEnUS(editRow.currentAmount) : "-"}
                       style={{ background: "var(--canvas)", color: "var(--muted)", fontWeight: 700, fontFamily: "var(--mono)" }}
                     />
                   </div>

@@ -27,10 +27,6 @@ export function getCountryFromBU(bu?: string | null): string {
   return "KSA";
 }
 
-export function resolveCurrency(selectedGroup: string): string {
-  return selectedGroup === "KSA" ? "SAR" : "EGP";
-}
-
 // IF value is null/undefined/empty string, returns { whole: "0", decimal: "" }
 export function formatNumberParts(value: number | null | undefined): {
   whole: string;

@@ -7,7 +7,6 @@ interface RevenueSummaryBarProps {
   month: string;
   bu: string;
   availableBUs: string[];
-  currency: string;
 }
 
 interface RevenueRow {
@@ -28,7 +27,6 @@ export default function RevenueSummaryBar({
   month,
   bu,
   availableBUs,
-  currency,
 }: RevenueSummaryBarProps) {
   const [allTargets, setAllTargets] = useState<RevenueRow[] | null>(null);
 
@@ -111,32 +109,32 @@ export default function RevenueSummaryBar({
         <div className="rev-row">
           <div className="rev-label">Cash Rev</div>
           <div className="rev-value pos">
-            {currency} {fmt.format(cashRev)}
+            {fmt.format(cashRev)}
           </div>
         </div>
         <div className="rev-row">
           <div className="rev-label">Credit Rev</div>
           <div className="rev-value pos">
-            {currency} {fmt.format(creditRev)}
+            {fmt.format(creditRev)}
           </div>
         </div>
         <div className="rev-row rev-row-total">
           <div>Total Rev</div>
           <div>
-            {currency} {fmt.format(totalRev)}
+            {fmt.format(totalRev)}
           </div>
         </div>
         <div className="rev-row rev-row-total">
           <div>DEF / SURP</div>
           <div className={defSurp >= 0 ? "pos" : "neg"}>
-            {currency} {fmt.format(Math.abs(defSurp))}
+            {fmt.format(Math.abs(defSurp))}
           </div>
         </div>
       </div>
       <div className="rev-right">
         <div className="rev-right-label">Target Rev</div>
         <div className="rev-right-value">
-          {currency} {fmt.format(targetRevTotal)}
+          {fmt.format(targetRevTotal)}
         </div>
         <div className="rev-right-sub">actual vs target {pct}%</div>
       </div>
