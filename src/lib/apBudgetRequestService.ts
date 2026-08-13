@@ -55,6 +55,40 @@ export async function fetchBudgetRequests(
   return (result.data ?? []) as unknown as BudgetRequestRow[];
 }
 
+interface RawActualAmountRow {
+  cfm_bu?: string;
+  cfm_month?: number | string;
+  cfm_actualamount?: number;
+}
+
+/**
+ * Fetches cfm_actualamount per BU x Month for a Year/Region — mirrors
+ * fetchActualAmountsInto(). Read-only, populated externally (outside this
+ * app); used only for the "Show Actual" display toggle, never edited here.
+ */
+export async function fetchActualAmountsByBuMonth(
+  year: string,
+  region: BudgetRegion,
+): Promise<Record<string, Partial<Record<MonthKey, number>>>> {
+  const result = await Cfm_requestbudgetsService.getAll({
+    select: ["cfm_month", "cfm_bu", "cfm_actualamount"],
+    filter: `cfm_year eq '${year}' and cfm_region eq ${regionToCode(region)}`,
+    maxPageSize: 1000,
+    top: 2000,
+  } as never);
+
+  const map: Record<string, Partial<Record<MonthKey, number>>> = {};
+  (result.data ?? []).forEach((r: RawActualAmountRow) => {
+    if (!r.cfm_bu || r.cfm_actualamount == null) return;
+    const m = Number(r.cfm_month);
+    if (!m || m < 1 || m > 12) return;
+    const monthKey = MONTH_KEYS[m - 1];
+    if (!map[r.cfm_bu]) map[r.cfm_bu] = {};
+    map[r.cfm_bu][monthKey] = r.cfm_actualamount;
+  });
+  return map;
+}
+
 /**
  * Assembles the BU × Month grid — mirrors the table-building logic in
  * loadAPBudgetTable(): every BU for the region gets a row (even with no

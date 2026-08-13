@@ -55,6 +55,7 @@ export interface AdvancePayment {
   statusValue: AdvPaymentStatusValue;
   status: string; // label
   requestedBy: string; // always "-" for now — see identity note above
+  category: string; // from the matched cfm_insurancecompany, or "-"
 }
 
 /** Matched company from the code lookup (mirrors _advMatchedCompany). */
@@ -63,6 +64,7 @@ export interface MatchedAdvCompany {
   name: string;
   code: string;
   bu: string;
+  category: string;
 }
 
 export const ADV_PER_PAGE = 10;

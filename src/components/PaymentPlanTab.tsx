@@ -17,7 +17,9 @@ import CreateDecisionModal from "./CreateDecisionModal";
 import BudgetRequestPanel from "./BudgetRequestPanel";
 import { useToast } from "../lib/ToastContext";
 import { fetchScPriorityForView } from "../lib/scPriorityService";
-import type { ScPriorityViewData } from "../lib/scPriorityService";import "../styles/CashFlowStatement.css";
+import type { ScPriorityViewData } from "../lib/scPriorityService";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
+import "../styles/CashFlowStatement.css";
 
 const TREASURY_STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "all", label: "All" },
@@ -474,6 +476,32 @@ export default function PaymentPlanTab() {
     }
   }
 
+  // ── Export — mirrors exportPaymentPlanAPXLS() ──
+  function handleExport() {
+    const headers = [
+      "Category", "Sub Ledger Code", "Vendor Name", "BU", "Initial Amount",
+      "Amount", "Due Date", "AP Notes", "Treasury Status", "Treasury Comment", "STATUS",
+    ];
+    const exportRows = filteredLines.map((r) => [
+      r.category || "-",
+      r.code || "-",
+      r.vendor || "-",
+      r.bu || "-",
+      r.plannedAmount != null ? Number(r.plannedAmount) : "",
+      r.currentAmount != null ? Number(r.currentAmount) : "",
+      r.due || "-",
+      r.notes || "-",
+      r.treasuryDecision || "-",
+      r.lastComment || "-",
+      r.currentStage || "-",
+    ]);
+    if (!exportRowsToXLS(`Payment_Plan_AP_${exportFilenameStamp()}`, headers, exportRows)) {
+      showToast("Nothing to Export", "No rows match the current filters.", "alert");
+      return;
+    }
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
+
   async function handlePrimaryAction() {
     if (!isValidAction) return;
     const ids = Array.from(selected);
@@ -542,9 +570,14 @@ export default function PaymentPlanTab() {
               Payment Plan
             </div>
           </div>
-          <button className="btn btn-outline" onClick={loadLines}>
-            Refresh Data
-          </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="btn btn-outline" onClick={loadLines}>
+              Refresh Data
+            </button>
+            <button className="btn btn-outline" onClick={handleExport}>
+              Export PP
+            </button>
+          </div>
         </div>
 
         <BudgetRequestPanel />

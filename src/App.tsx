@@ -12,6 +12,7 @@ import TreasuryTab from "./components/TreasuryTab";
 import ConfigurationTab from "./components/Configuration";
 import { ToastProvider } from "./lib/ToastContext";
 import { CurrentUserProvider, useCurrentUser } from "./lib/CurrentUserContext";
+import { GlobalRegionProvider } from "./lib/GlobalRegionContext";
 
 // Pages that are gated by role — "config" is intentionally NOT in this list
 // (mirrors the original, where Configuration was never part of roleMenuMap
@@ -105,7 +106,9 @@ function App() {
   return (
     <ToastProvider>
       <CurrentUserProvider>
-        <AppShell />
+        <GlobalRegionProvider>
+          <AppShell />
+        </GlobalRegionProvider>
       </CurrentUserProvider>
     </ToastProvider>
   );

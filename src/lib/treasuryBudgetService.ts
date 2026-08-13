@@ -163,27 +163,48 @@ export async function ensureBudgetRequestRecordsExist(
     }
   });
 
+  // Collect every missing (BU, month) combination first, then create them
+  // in batches of 10 instead of one sequential await at a time — mirrors
+  // ensureBudgetRequestRecordsExist()'s BATCH_SIZE in CFM_APNew.html,
+  // which was added specifically because sequential creates were making
+  // Request Budget slow for regions with many BUs (e.g. KSA's 17 BUs x 12
+  // months = up to 204 creates).
+  const missing: { bu: string; month: number }[] = [];
   for (const bu of buNames) {
     for (let m = 1; m <= 12; m++) {
       const key = `${bu}|${m}`;
       if (existingKeys.has(key)) {
         result.existing++;
-        continue;
-      }
-      try {
-        await Cfm_requestbudgetsService.create({
-          cfm_year: year,
-          cfm_region: regionCode,
-          cfm_bu: bu,
-          cfm_month: String(m),
-        } as never);
-        result.created++;
-        existingKeys.add(key);
-      } catch (e) {
-        console.error(`ensureBudgetRequestRecordsExist error for BU '${bu}' month ${m}:`, e);
-        result.errors.push(`${bu}-${m}`);
+      } else {
+        missing.push({ bu, month: m });
       }
     }
+  }
+
+  const BATCH_SIZE = 10;
+  for (let b = 0; b < missing.length; b += BATCH_SIZE) {
+    const batch = missing.slice(b, b + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map((item) =>
+        Cfm_requestbudgetsService.create({
+          cfm_year: year,
+          cfm_region: regionCode,
+          cfm_bu: item.bu,
+          cfm_month: String(item.month),
+        } as never)
+          .then(() => ({ ok: true as const, item }))
+          .catch((e: unknown) => ({ ok: false as const, item, error: e })),
+      ),
+    );
+    batchResults.forEach((r) => {
+      if (r.ok) {
+        result.created++;
+        existingKeys.add(`${r.item.bu}|${r.item.month}`);
+      } else {
+        console.error(`ensureBudgetRequestRecordsExist error for BU '${r.item.bu}' month ${r.item.month}:`, r.error);
+        result.errors.push(`${r.item.bu}-${r.item.month}`);
+      }
+    });
   }
 
   return result;

@@ -3,6 +3,10 @@ import { X } from "lucide-react";
 import { Cfm_tmshandoffsService } from "../generated/services/Cfm_tmshandoffsService";
 import type { Cfm_tmshandoffsBase } from "../generated/models/Cfm_tmshandoffsModel";
 import { useToast } from "../lib/ToastContext";
+import { computeDecisionSla } from "../lib/decisionSla";
+import { ensureBudgetRequestRecordsExist } from "../lib/treasuryBudgetService";
+import AssigneeLookup from "./AssigneeLookup";
+import type { BudgetRegion } from "../types/apBudgetRequest";
 
 interface BudgetRequestModalProps {
   open: boolean;
@@ -11,6 +15,16 @@ interface BudgetRequestModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+type Priority = "" | "Low" | "Medium" | "High" | "Critical";
+
+// mirrors PRIORITY_MAP in CreateDecisionModal.tsx / cfm_priority choice values
+const PRIORITY_MAP: Record<Exclude<Priority, "">, number> = {
+  Low: 123200000,
+  Medium: 123200001,
+  High: 123200002,
+  Critical: 931940001,
+};
 
 function todayIso(): string {
   const d = new Date();
@@ -31,7 +45,8 @@ export default function BudgetRequestModal({
   onSuccess,
 }: BudgetRequestModalProps) {
   const [request, setRequest] = useState("");
-  const [owner, setOwner] = useState("");
+  const [assignee, setAssignee] = useState<{ id: string; name: string } | null>(null);
+  const [priority, setPriority] = useState<Priority>("");
   const [dueDate, setDueDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -39,8 +54,10 @@ export default function BudgetRequestModal({
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRequest("");
-      setOwner("");
+      setAssignee(null);
+      setPriority("");
       setDueDate("");
       setErrorMsg(null);
     }
@@ -48,31 +65,51 @@ export default function BudgetRequestModal({
 
   if (!open) return null;
 
+  const start = todayIso();
+
   async function handleNotifyTreasury() {
     if (!request.trim()) {
       setErrorMsg("Please describe the budget you are requesting.");
       return;
     }
-    if (!owner.trim()) {
-      setErrorMsg("Please mention a Treasury owner.");
+    if (!assignee) {
+      setErrorMsg("Please select a Treasury assignee.");
       return;
     }
     if (!dueDate) {
       setErrorMsg("Please select a due date.");
       return;
     }
+    const todayD = new Date();
+    todayD.setHours(0, 0, 0, 0);
+    const dueD = new Date(dueDate + "T00:00:00");
+    if (isNaN(dueD.getTime()) || dueD < todayD) {
+      setErrorMsg("Due date must be today or a future date.");
+      return;
+    }
 
     setErrorMsg(null);
     setSubmitting(true);
     try {
+      // Bootstraps the cfm_requestbudget BU x Month records for this
+      // Year/Region so the grid populates immediately after the request —
+      // mirrors handleSendDecision()'s call to ensureBudgetRequestRecordsExist()
+      // before creating the TMS task (CFM_APNew.html:12945-12966).
+      await ensureBudgetRequestRecordsExist(year, region as BudgetRegion);
+
+      const sla = computeDecisionSla(start, dueDate);
+
       const record: Partial<Cfm_tmshandoffsBase> = {
         cfm_tasktitle: `Budget Request — ${region} ${year}`,
-        cfm_taskdescription: `Owner: ${owner.trim()}\n\n${request.trim()}`,
+        cfm_taskdescription: request.trim(),
         cfm_typeaction: "Budget Request",
         cfm_duedate: `${dueDate}T00:00:00Z`,
         cfm_progress: 123200004,
+        cfm_sla: sla,
         cfm_decisionfromwhere: 2 as never, // Request Budget -> 2, matches openDecision()'s mapping
+        "cfm_Assignee@odata.bind": `/systemusers(${assignee.id})`,
       };
+      if (priority) record.cfm_priority = PRIORITY_MAP[priority] as never;
 
       await Cfm_tmshandoffsService.create(
         record as unknown as Omit<Cfm_tmshandoffsBase, "cfm_tmshandoffid">,
@@ -150,15 +187,28 @@ export default function BudgetRequestModal({
 
           <div className="form-field">
             <label className="field-lbl">
-              Mention Owner <span className="field-req">*</span>
+              Assignee <span className="field-req">*</span>
             </label>
-            <input
-              className="field-input"
-              type="text"
-              placeholder="@treasury.owner..."
-              value={owner}
-              onChange={(e) => setOwner(e.target.value)}
-            />
+            <AssigneeLookup value={assignee} onChange={setAssignee} />
+          </div>
+
+          <div className="form-field">
+            <label className="field-lbl">Priority</label>
+            <div className="select-wrap" style={{ display: "block" }}>
+              <select
+                className="field-input"
+                style={{ paddingRight: 32 }}
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as Priority)}
+              >
+                <option value="">Select priority...</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <span className="sel-arrow">▾</span>
+            </div>
           </div>
 
           <div className="form-field">
@@ -168,7 +218,7 @@ export default function BudgetRequestModal({
             <input
               className="field-input"
               type="date"
-              min={todayIso()}
+              min={start}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />

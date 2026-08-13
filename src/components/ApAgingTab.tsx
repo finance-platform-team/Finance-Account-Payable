@@ -17,6 +17,7 @@ import type {
 import { AP_PER_PAGE } from "../types/apAging";
 import CreateDecisionModal from "./CreateDecisionModal";
 import { useToast } from "../lib/ToastContext";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
 import "../styles/CashFlowStatement.css";
 
 // Formats a number the same way the legacy fmt() helper does inside
@@ -227,6 +228,37 @@ export default function ApAgingTab() {
 
   const showingEnd = Math.min(start + AP_PER_PAGE, totalCount);
 
+  // ── Export — mirrors exportAPAgingXLS() ──
+  function handleExport() {
+    const headers = [
+      "Vendor Name", "BU", "Opening Balance", "Original Payable Voucher",
+      "Total Deductions", "Total Payment", "Not Allocated", "Due Amount",
+      "Not Due", "1–30", "31–60", "61–90", "91–120", "121–150", ">150",
+    ];
+    const exportRows = filteredRows.map((r) => [
+      r.cfm_vendorenglishname || "-",
+      r.cfm_bushortname || "-",
+      Number(r.cfm_openingbalance || 0),
+      Number(r.cfm_originalpayablevoucheramount || 0),
+      Number(r.cfm_totaldeductions || 0),
+      Number(r.cfm_totalpayment || 0),
+      Number(r.cfm_notallocatedpayment || 0),
+      Number(r.cfm_dueamount || 0),
+      Number(r.cfm_notdue || 0),
+      Number(r.cfm_jan || 0),
+      Number(r.cfm_60 || 0),
+      Number(r.cfm_90 || 0),
+      Number(r.cfm_120 || 0),
+      Number(r.cfm_150 || 0),
+      Number(r.cfm_above150 || 0),
+    ]);
+    if (!exportRowsToXLS(`AP_Aging_${exportFilenameStamp()}`, headers, exportRows)) {
+      showToast("Nothing to Export", "No rows match the current filters.", "alert");
+      return;
+    }
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
+
   return (
     <div className="cfs-root">
     <div id="ap-supervision" className="ap-screen active">
@@ -274,6 +306,9 @@ export default function ApAgingTab() {
         <div style={{ display: "flex", gap: 10 }}>
           <button className="btn btn-outline" onClick={loadRows}>
             Refresh Data
+          </button>
+          <button className="btn btn-outline" onClick={handleExport}>
+            Export
           </button>
       <button
             className="btn btn-primary"

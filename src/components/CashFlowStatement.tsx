@@ -4,6 +4,8 @@ import { fetchCashFlowData } from "../lib/dataverseClient";
 import {
   aggregateMeasures,
   getItemsForActivity,
+  getBareParentCategoriesToExcludeFromTotal,
+  computeLiveActivityNets,
   formatNumberParts,
   MONTH_NAMES,
 } from "../lib/cashflowUtils";
@@ -14,6 +16,7 @@ import type {
 import { RefreshCw, ClipboardCheck, Search, ChevronUp, ChevronDown } from "lucide-react";import CreateDecisionModal from "./CreateDecisionModal";
 import RevenueSummaryBar from "./RevenueSummaryBar";
 import Loader from "./Loader";
+import { useGlobalRegion, regionToGroupCode } from "../lib/GlobalRegionContext";
 
 // عنصر بسيط لعرض رقم مقسوم (صحيح + كسري بخط أصغر) زي الأصلي بالظبط
 function Num({ value }: { value: number | null | undefined }) {
@@ -55,6 +58,7 @@ const ACTIVITIES: ActivityDef[] = [
 ];
 
 export default function CashFlowStatement() {
+  const { globalRegion } = useGlobalRegion();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +67,16 @@ export default function CashFlowStatement() {
 
   const [selectedYear, setSelectedYear] = useState<string>("All");
   const [selectedMonth, setSelectedMonth] = useState<string>("All");
-  const [selectedGroup, setSelectedGroup] = useState<string>("EGY");
+  const [selectedGroup, setSelectedGroup] = useState<string>(
+    globalRegion ? regionToGroupCode(globalRegion) : "EGY",
+  );
+
+  // Follows the Global Region selector — mirrors applyGlobalRegionToCurrentScreen()
+  // re-applying it as the Group filter default whenever it changes.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (globalRegion) setSelectedGroup(regionToGroupCode(globalRegion));
+  }, [globalRegion]);
   const [selectedBU, setSelectedBU] = useState<string>("All");
   const [searchTerm, setSearchTerm] = useState("");
 const [decisionModalOpen, setDecisionModalOpen] = useState(false);
@@ -218,9 +231,23 @@ const [collapsedSections, setCollapsedSections] = useState<Record<string, boolea
     [filteredMeasures]
   );
 
-  const netChange = agg.netOperating + agg.netInvesting + agg.netFinancing;
+  // Live-computed Operating/Investing/Financing nets, straight from the
+  // category transactions (Total In - Total Out) instead of the separate
+  // cfm_cashflownetmeasures aggregate fields — those aren't guaranteed to
+  // match the transaction-level totals. Mirrors computeLiveActivityNets()
+  // in CFM_APNew.html, used for the activity strip, section Net pills, and
+  // Free Cash Flow.
+  const liveNets = useMemo(
+    () => computeLiveActivityNets(filteredTransactions),
+    [filteredTransactions]
+  );
 
-  const freeCashFlow = agg.beginningBalance + agg.netOperating + agg.netInvesting;
+  const netChange =
+    agg.endingBalance != null && agg.beginningBalance != null
+      ? agg.endingBalance - agg.beginningBalance
+      : 0;
+
+  const freeCashFlow = agg.beginningBalance + liveNets.operating + liveNets.investing;
 
   // ── دالة البحث: تفلتر السطور اللي اسمها مش متطابق مع نص البحث ──
   const matchesSearch = (name: string) =>
@@ -354,7 +381,7 @@ function handleYearChange(v: string) {
             className={`bu-chip ${selectedBU === "All" ? "active" : ""}`}
             onClick={() => setSelectedBU("All")}
           >
-            {selectedGroup === "All" ? "All" : selectedGroup === "EGY" ? "All Egypt" : `All ${selectedGroup}`}
+            {selectedGroup === "All" ? "All" : `All ${selectedGroup}`}
           </button>
           {availableBUs.map((bu) => (
             <button
@@ -397,7 +424,7 @@ function handleYearChange(v: string) {
               <Num value={Math.abs(netChange)} />
             </span>
           </div>
-          <div className="sum-sub">operating + investing + financing</div>
+          <div className="sum-sub">ending balance - opening balance</div>
         </div>
 
         <div className="sum-cell ending">
@@ -414,12 +441,7 @@ function handleYearChange(v: string) {
       {/* ── شريط الأنشطة ── */}
       <div className="act-strip">
         {ACTIVITIES.map((act) => {
-          const netVal =
-            act.key === "operating"
-              ? agg.netOperating
-              : act.key === "investing"
-              ? agg.netInvesting
-              : agg.netFinancing;
+          const netVal = liveNets[act.key];
           const dotColor =
             netVal >= 0 ? "var(--green-dark)" : "var(--danger)";
           return (
@@ -445,26 +467,22 @@ function handleYearChange(v: string) {
 
       {/* ── أقسام الأنشطة الثلاثة ── */}
       {ACTIVITIES.map((act) => {
-        const netVal =
-          act.key === "operating"
-            ? agg.netOperating
-            : act.key === "investing"
-            ? agg.netInvesting
-            : agg.netFinancing;
+        const netVal = liveNets[act.key];
 
-        const inItems = getItemsForActivity(
-          filteredTransactions,
-          act.activityName,
-          "Cash In"
-        ).filter((i) => matchesSearch(i.category));
-        const outItems = getItemsForActivity(
-          filteredTransactions,
-          act.activityName,
-          "Cash Out"
-        ).filter((i) => matchesSearch(i.category));
+        // Totals (and the duplicate-parent exclusion) are computed from the
+        // full, unfiltered item lists — mirrors renderCFSDetails() in
+        // CFM_APNew.html, where the search box only hides rendered rows and
+        // never changes Total In/Out. The rendered rows below apply the
+        // search filter separately, display-only.
+        const allInItems = getItemsForActivity(filteredTransactions, act.activityName, "Cash In");
+        const allOutItems = getItemsForActivity(filteredTransactions, act.activityName, "Cash Out");
+        const excludeIn = getBareParentCategoriesToExcludeFromTotal(allInItems);
+        const excludeOut = getBareParentCategoriesToExcludeFromTotal(allOutItems);
+        const totalIn = allInItems.reduce((a, i) => (excludeIn[i.category] ? a : a + i.amount), 0);
+        const totalOut = allOutItems.reduce((a, i) => (excludeOut[i.category] ? a : a + i.amount), 0);
 
-        const totalIn = inItems.reduce((a, i) => a + i.amount, 0);
-        const totalOut = outItems.reduce((a, i) => a + i.amount, 0);
+        const inItems = allInItems.filter((i) => matchesSearch(i.category));
+        const outItems = allOutItems.filter((i) => matchesSearch(i.category));
 
         return (
           <div key={act.key}>

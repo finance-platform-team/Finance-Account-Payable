@@ -3640,5 +3640,19 @@ export const dataSourcesInfo = {
     "primaryKey": "systemuserid",
     "dataSourceType": "Dataverse",
     "apis": {}
+  },
+  "cfm_slas": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_slaid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "cfm_slatrackings": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cfm_slatrackingid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
   }
 };

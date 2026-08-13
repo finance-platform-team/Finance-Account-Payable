@@ -1039,6 +1039,94 @@
         background: var(--surface-hover);
       }
 
+      /* Danger/Delete outline buttons — red on hover instead of the
+         default neutral gray hover above. */
+      .btn-outline-danger:hover {
+        background: var(--danger) !important;
+        color: #ffffff !important;
+        border-color: var(--danger) !important;
+      }
+
+      /* Global Region modal choice cards (Egypt / Saudi Arabia) — full-width
+         rows with an icon badge, name + code, and a hover arrow affordance.
+         White by default; gold on hover, matching the app's brand gold. */
+      .region-choice-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 13px 16px;
+        background: #ffffff;
+        color: inherit;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .region-choice-card:hover {
+        border-color: transparent;
+        background: var(--grad-gold);
+        box-shadow: var(--shadow-gold);
+        transform: translateY(-1px);
+      }
+
+      .region-choice-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: var(--r-md);
+        background: var(--grad-gold);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font: 800 11px var(--sans);
+        letter-spacing: 0.2px;
+        flex-shrink: 0;
+        transition: background 0.22s;
+      }
+
+      .region-choice-card:hover .region-choice-icon {
+        background: rgba(255, 255, 255, 0.22);
+      }
+
+      .region-choice-text {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .region-choice-name {
+        font: 700 14px var(--sans);
+        color: var(--brand-black);
+        transition: color 0.22s;
+      }
+
+      .region-choice-code {
+        font: 600 10px var(--mono);
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-top: 2px;
+        transition: color 0.22s;
+      }
+
+      .region-choice-card:hover .region-choice-name,
+      .region-choice-card:hover .region-choice-code {
+        color: #ffffff;
+      }
+
+      .region-choice-arrow {
+        color: var(--dim);
+        flex-shrink: 0;
+        transition: all 0.22s;
+      }
+
+      .region-choice-card:hover .region-choice-arrow {
+        color: #ffffff;
+        transform: translateX(3px);
+      }
+
       .btn-sm {
         padding: 4px 10px;
         font-size: 10px;
@@ -2883,7 +2971,9 @@
       .sidebar.collapsed .sb-section,
       .sidebar.collapsed .sb-badge,
       .sidebar.collapsed .sb-item span:not(.sr-only),
-      .sidebar.collapsed #ar-subnav {
+      .sidebar.collapsed #ar-subnav,
+      .sidebar.collapsed #ap-subnav,
+      .sidebar.collapsed #config-subnav {
         display: none !important;
       }
 
@@ -3537,8 +3627,30 @@
         div[style*="grid-template-columns: 1fr 1fr"][style*="gap: 16px"],
         div[style*="grid-template-columns:1fr 1fr"][style*="gap:16px"],
         div[style*="grid-template-columns: 1fr 1fr"][style*="gap: 32px"],
-        div[style*="grid-template-columns:1fr 1fr"][style*="gap:32px"] {
+        div[style*="grid-template-columns:1fr 1fr"][style*="gap:32px"],
+        div[style*="grid-template-columns: 1fr 1fr"][style*="gap: 14px"],
+        div[style*="grid-template-columns:1fr 1fr"][style*="gap:14px"] {
           grid-template-columns: 1fr !important;
+        }
+
+        /* Advance Payment "Add" form Row 1 (Code / Name / BU — 3 cols) */
+        div[style*="grid-template-columns: 1fr 1fr 0.7fr"],
+        div[style*="grid-template-columns:1fr 1fr 0.7fr"] {
+          grid-template-columns: 1fr !important;
+        }
+
+        /* SC Priority detail modal — Left/Right two-column split (no gap,
+           uses a border-right divider instead) should stack on mobile */
+        #pp-detail-body > div[style*="grid-template-columns:1fr 1fr"],
+        #pp-detail-body > div[style*="grid-template-columns: 1fr 1fr"] {
+          grid-template-columns: 1fr !important;
+        }
+        #pp-detail-body > div[style*="grid-template-columns:1fr 1fr"] > div:first-child,
+        #pp-detail-body
+          > div[style*="grid-template-columns: 1fr 1fr"]
+          > div:first-child {
+          border-right: none !important;
+          border-bottom: 1px solid var(--border);
         }
 
         /* Pagination row (showing X of Y) */
@@ -3597,6 +3709,52 @@
         >
       </div>
       <div class="nb-right">
+        <!-- Global Region selector — drives the default region across the
+             app (Cash Flow Statement, AP Supervision, Budget Request,
+             Treasury Budget, Payment Plan). Can be changed here anytime. -->
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--r-pill);
+          "
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgba(255,255,255,0.5)"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path
+              d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+            />
+          </svg>
+          <select
+            id="global-region-select"
+            onchange="setGlobalRegion(this.value)"
+            style="
+              background: transparent;
+              border: none;
+              color: #fff;
+              font: 700 11px var(--sans);
+              outline: none;
+              cursor: pointer;
+            "
+          >
+            <option value="Egypt" style="color: #211c1e">EGY</option>
+            <option value="KSA" style="color: #211c1e">KSA</option>
+          </select>
+        </div>
         <div class="nb-user">
           <div class="nb-av">MM</div>
           <div>
@@ -3606,6 +3764,125 @@
         </div>
       </div>
     </header>
+
+    <!-- ══════════════ GLOBAL REGION MODAL — mandatory on first load ══ -->
+    <div class="modal-overlay" id="modal-global-region" style="z-index: 700">
+      <div class="modal-box" style="max-width: 420px">
+        <div
+          class="modal-hdr"
+          style="
+            padding: 22px 24px 14px;
+            background: linear-gradient(180deg, #fff 0%, var(--canvas) 100%);
+          "
+        >
+          <div style="display: flex; align-items: flex-start; gap: 10px">
+            <div
+              style="
+                width: 36px;
+                height: 36px;
+                background: var(--gold-soft);
+                border-radius: var(--r-md);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--gold-dark)"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path
+                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div
+                class="modal-title"
+                style="font: 800 18px var(--sans); letter-spacing: -0.2px"
+              >
+                Select Your Region
+              </div>
+              <div
+                style="
+                  font: 400 12.5px var(--body);
+                  color: var(--muted);
+                  margin-top: 4px;
+                  line-height: 1.55;
+                "
+              >
+                This sets your default region across the app. You can change
+                it anytime from the top navbar.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="
+            padding: 8px 24px 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <button
+            class="region-choice-card"
+            onclick="confirmGlobalRegionChoice('Egypt')"
+          >
+            <div class="region-choice-icon">EG</div>
+            <div class="region-choice-text">
+              <div class="region-choice-name">Egypt</div>
+              <div class="region-choice-code">EGY · AMH, ASH, SMH</div>
+            </div>
+            <svg
+              class="region-choice-arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <button
+            class="region-choice-card"
+            onclick="confirmGlobalRegionChoice('KSA')"
+          >
+            <div class="region-choice-icon">KSA</div>
+            <div class="region-choice-text">
+              <div class="region-choice-name">Saudi Arabia</div>
+              <div class="region-choice-code">KSA</div>
+            </div>
+            <svg
+              class="region-choice-arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ══════════════ SIDEBAR ══════════════ -->
     <aside class="sidebar" id="main-sidebar">
@@ -4828,6 +5105,10 @@
                 <i class="fa-solid fa-arrows-rotate icon-sm"></i>
                 Refresh Data
               </button>
+              <button class="btn btn-outline" onclick="exportAPAgingXLS()">
+                <i class="fa-solid fa-file-excel icon-sm"></i>
+                Export
+              </button>
               <button
                 id="btn-send-to-sc"
                 class="btn btn-primary"
@@ -5229,9 +5510,46 @@
                   font: 800 26px var(--sans);
                   color: var(--brand-black);
                   letter-spacing: -0.4px;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
                 "
               >
                 Payment Plan
+                <span
+                  id="pp-ap-region-badge"
+                  title="Filtered by the Global Region selector in the navbar"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    font: 700 11px var(--sans);
+                    letter-spacing: 0.3px;
+                    color: var(--gold-dark);
+                    background: var(--gold-soft);
+                    border: 1px solid rgba(165, 132, 91, 0.25);
+                    border-radius: var(--r-pill);
+                    padding: 3px 11px;
+                  "
+                >
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--gold-dark)"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                    />
+                  </svg>
+                  <span id="pp-ap-region-badge-text">—</span>
+                </span>
               </div>
               <div
                 style="
@@ -5247,6 +5565,10 @@
               <button class="btn btn-outline" onclick="refreshAPTab()">
                 <i class="fa-solid fa-arrows-rotate icon-sm"></i>
                 Refresh Data
+              </button>
+              <button class="btn btn-outline" onclick="exportPaymentPlanAPXLS()">
+                <i class="fa-solid fa-file-excel icon-sm"></i>
+                Export PP
               </button>
             </div>
           </div>
@@ -5310,6 +5632,23 @@
                 "
               >
                 <button
+                  id="ap-show-actual-btn"
+                  class="btn btn-outline"
+                  onclick="toggleAPShowActual()"
+                  style="padding: 7px 14px; font-size: 12px"
+                >
+                  <i class="fa-solid fa-eye icon-sm"></i>
+                  Show Actual
+                </button>
+                <button
+                  class="btn btn-outline"
+                  onclick="exportAPBudgetXLS()"
+                  style="padding: 7px 14px; font-size: 12px"
+                >
+                  <i class="fa-solid fa-file-excel icon-sm"></i>
+                  Export
+                </button>
+                <button
                   class="btn btn-primary"
                   onclick="
                     event.stopPropagation();
@@ -5330,6 +5669,7 @@
                 gap: 16px;
                 margin-bottom: 16px;
                 padding: 18px 22px 0 22px;
+                flex-wrap: wrap;
               "
             >
               <div
@@ -5474,12 +5814,12 @@
 
             <!-- Table container with horizontal scroll -->
             <div style="overflow-x: auto">
-              <div style="min-width: 1320px">
+              <div style="min-width: 1360px">
                 <!-- Column headers -->
                 <div
                   style="
                     display: grid;
-                    grid-template-columns: 40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr 120px;
+                    grid-template-columns: 40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr 160px;
                     padding: 10px 16px;
                     background: var(--canvas);
                     border-bottom: 1px solid var(--border);
@@ -5681,6 +6021,10 @@
                 <i class="fa-solid fa-arrows-rotate icon-sm"></i>
                 Refresh Data
               </button>
+              <button class="btn btn-outline" onclick="exportPaymentPlanSCXLS()">
+                <i class="fa-solid fa-file-excel icon-sm"></i>
+                Export
+              </button>
             </div>
           </div>
 
@@ -5719,12 +6063,12 @@
 
             <!-- Table container with horizontal scroll -->
             <div style="overflow-x: auto; padding-bottom: 12px">
-              <div style="min-width: 1320px">
+              <div style="min-width: 1360px">
                 <!-- Column headers -->
                 <div
                   style="
                     display: grid;
-                    grid-template-columns: 40px 130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 120px;
+                    grid-template-columns: 40px 130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 160px;
                     padding: 10px 16px;
                     background: var(--canvas);
                     border-bottom: 1px solid var(--border);
@@ -5922,6 +6266,10 @@
                 <i class="fa-solid fa-arrows-rotate icon-sm"></i>
                 Refresh Data
               </button>
+              <button class="btn btn-outline" onclick="exportAdvancePaymentsXLS()">
+                <i class="fa-solid fa-file-excel icon-sm"></i>
+                Export
+              </button>
             </div>
           </div>
 
@@ -6094,7 +6442,7 @@
                   <div
                     style="
                       display: grid;
-                      grid-template-columns: 1fr 1fr 0.7fr;
+                      grid-template-columns: 1fr 1fr 0.7fr 0.7fr;
                       gap: 14px;
                     "
                   >
@@ -6170,6 +6518,28 @@
                           font-weight: 600;
                           cursor: not-allowed;
                           font-family: var(--mono);
+                        "
+                      />
+                    </div>
+                    <div class="form-field" style="margin-bottom: 0">
+                      <label class="field-lbl"
+                        >Category
+                        <span
+                          style="font: 400 9px var(--body); color: var(--dim)"
+                          >(auto-filled)</span
+                        ></label
+                      >
+                      <input
+                        class="field-input"
+                        id="adv-vendor-category"
+                        type="text"
+                        readonly
+                        placeholder="—"
+                        style="
+                          background: var(--canvas);
+                          color: var(--muted);
+                          font-weight: 600;
+                          cursor: not-allowed;
                         "
                       />
                     </div>
@@ -6261,7 +6631,7 @@
                     width: 100%;
                     border-collapse: collapse;
                     white-space: nowrap;
-                    min-width: 1180px;
+                    min-width: 1290px;
                   "
                 >
                   <thead>
@@ -6308,6 +6678,19 @@
                         "
                       >
                         BU
+                      </th>
+                      <th
+                        style="
+                          padding: 10px 16px;
+                          font: 700 9px var(--sans);
+                          text-transform: uppercase;
+                          letter-spacing: 0.8px;
+                          color: var(--dim);
+                          text-align: left;
+                          width: 130px;
+                        "
+                      >
+                        Category
                       </th>
                       <th
                         style="
@@ -6390,7 +6773,7 @@
                   <tbody id="adv-grid-tbody">
                     <tr>
                       <td
-                        colspan="9"
+                        colspan="10"
                         style="
                           text-align: center;
                           padding: 36px 16px;
@@ -6458,6 +6841,10 @@
                 <i class="fa-solid fa-arrows-rotate icon-sm"></i>
                 Refresh Data
               </button>
+              <button class="btn btn-outline" onclick="exportTreasuryWorkflowXLS()">
+                <i class="fa-solid fa-file-excel icon-sm"></i>
+                Export
+              </button>
             </div>
           </div>
 
@@ -6518,6 +6905,15 @@
                   style="display: none"
                   onchange="handleTreasuryBudgetImportFile(this)"
                 />
+                <button
+                  id="treasury-show-actual-btn"
+                  class="btn btn-outline"
+                  onclick="toggleTreasuryShowActual()"
+                  style="padding: 7px 14px; font-size: 12px"
+                >
+                  <i class="fa-solid fa-eye icon-sm"></i>
+                  Show Actual
+                </button>
                 <button
                   class="btn btn-outline"
                   onclick="exportTreasuryBudgetCSV()"
@@ -6677,7 +7073,7 @@
               <div id="t-toolbar-container"></div>
               <div style="overflow-x: auto; padding-bottom: 12px">
                 <div
-                  style="min-width: 1570px"
+                  style="min-width: 1610px"
                   id="treasury-ppl-container"
                 ></div>
               </div>
@@ -6759,6 +7155,45 @@
               box-shadow: var(--shadow-sm);
             "
           >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 14px 18px;
+                border-bottom: 1px solid var(--border);
+                flex-wrap: wrap;
+              "
+            >
+              <div class="tbl-search" style="max-width: 260px">
+                <i
+                  class="fa-solid fa-magnifying-glass icon-sm"
+                  style="color: var(--dim)"
+                ></i>
+                <input
+                  type="text"
+                  id="sla-config-search"
+                  placeholder="Search action, department, manager…"
+                  oninput="renderSlaConfigTable()"
+                />
+              </div>
+              <div class="filter-group">
+                <span class="filter-lbl">Type</span>
+                <div class="select-wrap">
+                  <select
+                    id="sla-config-type-filter"
+                    onchange="renderSlaConfigTable()"
+                  >
+                    <option value="all">All</option>
+                    <option value="766340000">Hours</option>
+                    <option value="766340001">Date</option>
+                  </select>
+                  <span class="sel-arrow"
+                    ><i class="fa-solid fa-chevron-down icon-sm"></i
+                  ></span>
+                </div>
+              </div>
+            </div>
             <div style="overflow-x: auto">
               <table style="width: 100%; border-collapse: collapse">
                 <thead>
@@ -6838,7 +7273,43 @@
                         color: var(--muted);
                       "
                     >
-                      Status
+                      Department 1
+                    </th>
+                    <th
+                      style="
+                        padding: 10px 14px;
+                        text-align: left;
+                        font: 700 9px var(--sans);
+                        text-transform: uppercase;
+                        letter-spacing: 0.8px;
+                        color: var(--muted);
+                      "
+                    >
+                      Manager (Dept 1)
+                    </th>
+                    <th
+                      style="
+                        padding: 10px 14px;
+                        text-align: left;
+                        font: 700 9px var(--sans);
+                        text-transform: uppercase;
+                        letter-spacing: 0.8px;
+                        color: var(--muted);
+                      "
+                    >
+                      Department 2
+                    </th>
+                    <th
+                      style="
+                        padding: 10px 14px;
+                        text-align: left;
+                        font: 700 9px var(--sans);
+                        text-transform: uppercase;
+                        letter-spacing: 0.8px;
+                        color: var(--muted);
+                      "
+                    >
+                      Manager (Dept 2)
                     </th>
                     <th style="padding: 10px 14px"></th>
                   </tr>
@@ -6846,7 +7317,7 @@
                 <tbody id="sla-config-tbody">
                   <tr>
                     <td
-                      colspan="7"
+                      colspan="10"
                       style="
                         text-align: center;
                         padding: 30px;
@@ -7935,6 +8406,134 @@
       let selectedAPBU = "All"; // kept for BU-chips compat; not used for filtering anymore
       let selectedGroup = "EGY"; // Default to Egypt
 
+      // ══════════════════════════════════════════════════════════════
+      //  GLOBAL REGION — asked once on first load (persisted in
+      //  localStorage), changeable anytime from the navbar dropdown.
+      //  Drives the DEFAULT region for Cash Flow Statement, AP
+      //  Supervision, Budget Request, and Treasury Budget, and is the
+      //  ONLY region source for Payment Plan (AP View), which has no
+      //  local region selector of its own.
+      //  Stored value convention matches cfm_requestbudget's Region
+      //  choice text ("Egypt" | "KSA") — the same convention already
+      //  used by getBUNamesForRegion(), the AP/Treasury Budget region
+      //  dropdowns, and ensureBudgetRequestRecordsExist().
+      // ══════════════════════════════════════════════════════════════
+      var GLOBAL_REGION_STORAGE_KEY = "cfm-global-region";
+      window.globalRegion = null;
+
+      function regionToGroupCode(region) {
+        // Bridges the "Egypt"/"KSA" convention (Budget Request, Payment
+        // Plan) to the "EGY"/"KSA" convention used by Cash Flow
+        // Statement's Group filter and AP Supervision's Group filter.
+        return region === "Egypt" ? "EGY" : "KSA";
+      }
+
+      function promptGlobalRegionIfNeeded() {
+        var saved = null;
+        try {
+          saved = localStorage.getItem(GLOBAL_REGION_STORAGE_KEY);
+        } catch (e) {
+          console.warn("localStorage unavailable for Global Region:", e);
+        }
+        if (saved === "Egypt" || saved === "KSA") {
+          window.globalRegion = saved;
+          updateGlobalRegionNavbarSelect();
+          return;
+        }
+        // No saved choice yet — ask once, and block until answered. The
+        // modal has no close button and its backdrop click is disabled
+        // (see the modal-overlay click handler further down) specifically
+        // so this can't be skipped.
+        openModal("modal-global-region");
+      }
+
+      function confirmGlobalRegionChoice(region) {
+        setGlobalRegion(region);
+        closeModal("modal-global-region");
+      }
+
+      function setGlobalRegion(region) {
+        if (region !== "Egypt" && region !== "KSA") return;
+        window.globalRegion = region;
+        try {
+          localStorage.setItem(GLOBAL_REGION_STORAGE_KEY, region);
+        } catch (e) {
+          console.warn("Could not persist Global Region to localStorage:", e);
+        }
+        updateGlobalRegionNavbarSelect();
+        applyGlobalRegionToCurrentScreen();
+      }
+
+      function updateGlobalRegionNavbarSelect() {
+        var sel = document.getElementById("global-region-select");
+        if (sel && window.globalRegion) sel.value = window.globalRegion;
+      }
+
+      // Re-applies the Global Region as the default for whichever screen is
+      // currently visible, and reloads/re-renders its data so switching the
+      // region from the navbar takes effect immediately without needing to
+      // navigate away and back.
+      function applyGlobalRegionToCurrentScreen() {
+        if (!window.globalRegion) return;
+        var groupCode = regionToGroupCode(window.globalRegion);
+
+        // Cash Flow Statement
+        var cfsPage = document.getElementById("page-cfs");
+        if (cfsPage && cfsPage.style.display !== "none") {
+          var cfsGroupEl = document.getElementById("filter-group");
+          if (cfsGroupEl && cfsGroupEl.querySelector('option[value="' + groupCode + '"]')) {
+            cfsGroupEl.value = groupCode;
+            if (typeof populateBusinessUnitsAndTabs === "function")
+              populateBusinessUnitsAndTabs();
+            if (typeof applyFilters === "function") applyFilters();
+          }
+        }
+
+        // AP Supervision
+        var apGroupEl = document.getElementById("ap-group-filter");
+        if (
+          apGroupEl &&
+          document.getElementById("ap-supervision") &&
+          document
+            .getElementById("ap-supervision")
+            .classList.contains("active")
+        ) {
+          apGroupEl.value = groupCode;
+          if (typeof apFilter === "function") apFilter();
+        }
+
+        // AP Budget Request (Payment Plan AP View)
+        var apReqRegionEl = document.getElementById("ap-req-filter-region");
+        if (
+          apReqRegionEl &&
+          document.getElementById("ap-payment-plan") &&
+          document
+            .getElementById("ap-payment-plan")
+            .classList.contains("active")
+        ) {
+          apReqRegionEl.value = window.globalRegion;
+          if (typeof loadAPBudgetTable === "function") loadAPBudgetTable();
+        }
+
+        // Treasury Budget
+        var treasuryRegionEl = document.getElementById(
+          "treasury-filter-region",
+        );
+        if (
+          treasuryRegionEl &&
+          document.getElementById("ap-treasury") &&
+          document.getElementById("ap-treasury").classList.contains("active")
+        ) {
+          treasuryRegionEl.value = window.globalRegion;
+          if (typeof loadTreasuryBudget === "function") loadTreasuryBudget();
+        }
+
+        // Payment Plan (AP View) — region is applied purely as a filter
+        // criterion; there is no local dropdown for it.
+        if (typeof renderPaymentPlanLines === "function")
+          renderPaymentPlanLines();
+      }
+
       // ── AP Aging state ──────────────────────────────────────────────────
       var dynamicApAgingData = [];
       var apPage = 1;
@@ -7997,6 +8596,15 @@
           if (filters.length > 0) {
             query += "&$filter=" + filters.join(" and ");
           }
+          // Explicit $top — without it this connector was silently
+          // stopping at a single page (5000 rows) instead of continuing
+          // through the rest of the result set once a broad filter (e.g.
+          // "All EGY", which spans AMH+ASH+SMH together) pushed the true
+          // row count past that. AMH alone is 2,425 and ASH alone is
+          // 4,497 — already 6,922 combined before SMH — so "All EGY" was
+          // getting silently truncated to exactly 5,000. 20000 comfortably
+          // covers the current data size with headroom to grow.
+          query += "&$top=20000";
 
           var res = await XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_finance_ap",
@@ -8712,29 +9320,93 @@
       // vendor name. It is never stored or updated on cfm_paymentplan.
       var agingDuesByVendor = {};
 
+      // Category for Payment Plan (and anywhere else a vendor Category is
+      // shown) follows the same two-step source as the rest of the vendor
+      // fields: 1) cfm_finance_ap (Aging), matched by vendor name — same
+      // join key as Initial Amount above; 2) if Aging doesn't have a
+      // Category for that vendor, fall back to cfm_insurancecompany,
+      // matched by Code. Both are prefetched once into plain lookup maps
+      // so mapPaymentPlanRecord() can resolve Category synchronously per
+      // row, with no per-row Dataverse round-trip.
+      var agingCategoryByVendor = {};
+      var companyCategoryByCode = {};
+
       function normalizeVendorKey(name) {
         return (name || "").trim().toLowerCase();
+      }
+
+      function normalizeCodeKey(code) {
+        return (code || "").trim().toLowerCase();
       }
 
       async function loadAgingDuesLookup() {
         if (typeof XrmObj === "undefined" || !XrmObj || !XrmObj.WebApi) {
           agingDuesByVendor = {};
+          agingCategoryByVendor = {};
           return;
         }
         try {
+          // $top caps this at a fixed number instead of letting the Web
+          // API silently return only a single 5,000-row page (confirmed:
+          // cfm_finance_ap already has 6,922+ rows for EGY alone —
+          // AMH 2,425 + ASH 4,497 — so 5,000 was itself silently
+          // truncating this lookup too, same root cause as the AP Aging
+          // grid). 20000 keeps this bounded (never an unlimited/looping
+          // fetch that could freeze the browser) while comfortably
+          // covering the current data size.
           var res = await XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_finance_ap",
-            "?$select=cfm_vendorenglishname,cfm_dueamount",
+            "?$select=cfm_vendorenglishname,cfm_dueamount,cfm_category&$top=20000",
           );
           var map = {};
+          var catMap = {};
           (res.entities || []).forEach(function (r) {
             var key = normalizeVendorKey(r.cfm_vendorenglishname);
-            if (key) map[key] = Number(r.cfm_dueamount || 0);
+            if (!key) return;
+            map[key] = Number(r.cfm_dueamount || 0);
+            // cfm_category on cfm_finance_ap: prefer the FormattedValue
+            // annotation (covers the case it's a Choice field), else the
+            // raw value (plain text field). Only recorded when actually
+            // populated — many Aging rows have it null, which is exactly
+            // when the cfm_insurancecompany fallback below should kick in.
+            var catVal =
+              r["cfm_category@OData.Community.Display.V1.FormattedValue"] ||
+              r.cfm_category;
+            if (catVal) catMap[key] = catVal;
           });
           agingDuesByVendor = map;
+          agingCategoryByVendor = catMap;
         } catch (e) {
           console.error("Error loading Aging Total Dues lookup:", e);
           agingDuesByVendor = {};
+          agingCategoryByVendor = {};
+        }
+
+        // Fallback source: cfm_insurancecompany, matched by Code. Fetched
+        // once here (small, static reference table of companies) so the
+        // per-row fallback below is just a map lookup, no extra round
+        // trips.
+        try {
+          var compRes = await XrmObj.WebApi.retrieveMultipleRecords(
+            "cfm_insurancecompany",
+            "?$select=cfm_code,cfm_category&$top=20000",
+          );
+          var compCatMap = {};
+          (compRes.entities || []).forEach(function (r) {
+            var key = normalizeCodeKey(r.cfm_code);
+            if (!key) return;
+            var catVal =
+              r["cfm_category@OData.Community.Display.V1.FormattedValue"] ||
+              r.cfm_category;
+            if (catVal) compCatMap[key] = catVal;
+          });
+          companyCategoryByCode = compCatMap;
+        } catch (e) {
+          console.error(
+            "Error loading cfm_insurancecompany Category fallback lookup:",
+            e,
+          );
+          companyCategoryByCode = {};
         }
       }
 
@@ -8745,6 +9417,27 @@
           Object.prototype.hasOwnProperty.call(agingDuesByVendor, key)
         ) {
           return agingDuesByVendor[key];
+        }
+        return null;
+      }
+
+      // Vendor Category — 1) cfm_finance_ap (Aging), matched by vendor
+      // name; 2) if not populated there, cfm_insurancecompany, matched by
+      // Code. Both maps are prefetched in loadAgingDuesLookup().
+      function getVendorCategory(vendorName, companyCode) {
+        var vendorKey = normalizeVendorKey(vendorName);
+        if (
+          vendorKey &&
+          Object.prototype.hasOwnProperty.call(agingCategoryByVendor, vendorKey)
+        ) {
+          return agingCategoryByVendor[vendorKey];
+        }
+        var codeKey = normalizeCodeKey(companyCode);
+        if (
+          codeKey &&
+          Object.prototype.hasOwnProperty.call(companyCategoryByCode, codeKey)
+        ) {
+          return companyCategoryByCode[codeKey];
         }
         return null;
       }
@@ -8790,10 +9483,13 @@
           companyCode = r.cfm_plancode;
         }
 
-        var category =
-          r[
-            "_cfm_scpriority_value@OData.Community.Display.V1.FormattedValue"
-          ] || "—";
+        // Category — read-only, resolved 1) from Aging (cfm_finance_ap) by
+        // vendor name, 2) falling back to cfm_insurancecompany by Code.
+        // Never sourced from the linked SC Priority record (that was the
+        // old behavior here, which conflated a workflow relationship with
+        // the vendor's actual Category) and never stored/updated on
+        // cfm_paymentplan itself.
+        var category = getVendorCategory(vendorName, companyCode) || "—";
         var treasuryLabel = getTreasuryStatusLabel(r.cfm_treasurystatus);
         var statusLabel = getPaymentPlanStatusLabel(r.cfm_paymentplanstatus);
 
@@ -8840,9 +9536,15 @@
         try {
           await loadAgingDuesLookup();
 
+          // $top caps this at 20000 rows instead of an unbounded fetch
+          // (same reasoning as loadAgingDuesLookup above), while staying
+          // well clear of the same silent-truncation risk we just found on
+          // cfm_finance_ap — Payment Plan lines are a curated subset (only
+          // vendors AP explicitly sent to plan), so this is comfortable
+          // headroom, not a tight fit.
           var res = await XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_paymentplan",
-            "?$select=" + PP_LINE_FIELDS,
+            "?$select=" + PP_LINE_FIELDS + "&$top=20000",
           );
 
           ppLines = (res.entities || []).map(mapPaymentPlanRecord);
@@ -10086,12 +10788,19 @@
         });
 
         groupSelect.innerHTML = groupHTML;
-        // Preserve selected group if possible, else default to EGY
+        // Preserve selected group if possible, else default to the Global
+        // Region (navbar selector), falling back to EGY if that's not
+        // among the currently-available groups.
+        var globalGroupCode = window.globalRegion
+          ? regionToGroupCode(window.globalRegion)
+          : null;
         if (
           prevGroup &&
           (prevGroup === "All" || availableGroups.includes(prevGroup))
         ) {
           groupSelect.value = prevGroup;
+        } else if (globalGroupCode && availableGroups.includes(globalGroupCode)) {
+          groupSelect.value = globalGroupCode;
         } else if (availableGroups.includes("EGY")) {
           groupSelect.value = "EGY";
         } else {
@@ -10593,11 +11302,13 @@
             act + " Activities",
             "Cash Out",
           );
+          var excludeIn = getBareParentCategoriesToExcludeFromTotal(inItems);
+          var excludeOut = getBareParentCategoriesToExcludeFromTotal(outItems);
           var inSum = inItems.reduce(function (acc, i) {
-            return acc + i.amount;
+            return excludeIn[i.category] ? acc : acc + i.amount;
           }, 0);
           var outSum = outItems.reduce(function (acc, i) {
-            return acc + i.amount;
+            return excludeOut[i.category] ? acc : acc + i.amount;
           }, 0);
           result[key] = inSum - outSum;
         });
@@ -10626,6 +11337,34 @@
             items.push({ category: cat, amount: categoryMap[cat] });
           });
         return items;
+      }
+
+      // Some categories are duplicated data: a bare "Visa" row and split
+      // "Visa - Arab" / "Visa - NBE" rows that already sum up to exactly
+      // the same amount as "Visa" (confirmed: Arab + NBE = Visa, to the
+      // cent). Summing every row for Total In/Out would double-count that
+      // money. This returns the set of bare parent category names (no
+      // " - " in the name, matching the same flexible dash-splitting rule
+      // used elsewhere) that should be EXCLUDED from the total whenever at
+      // least one "Parent - Child" sibling exists for it — the detailed
+      // branches are kept in the total instead. A bare category with no
+      // such siblings is a genuine standalone value and stays included.
+      function getBareParentCategoriesToExcludeFromTotal(items) {
+        var childPrefixes = {};
+        items.forEach(function (item) {
+          var m = item.category.match(/^(.+?)\s*-\s*(.+)$/);
+          if (m) {
+            childPrefixes[m[1].trim()] = true;
+          }
+        });
+        var exclude = {};
+        items.forEach(function (item) {
+          var m = item.category.match(/^(.+?)\s*-\s*(.+)$/);
+          if (!m && childPrefixes[item.category.trim()]) {
+            exclude[item.category] = true;
+          }
+        });
+        return exclude;
       }
 
       function renderCFSDetails() {
@@ -10674,6 +11413,7 @@
           // Render Inflows
           var inContainer = document.getElementById(`${prefix}-in-container`);
           var totalIn = 0;
+          var excludeIn = getBareParentCategoriesToExcludeFromTotal(inItems);
           if (inContainer) {
             if (inItems.length === 0) {
               inContainer.innerHTML =
@@ -10681,7 +11421,7 @@
             } else {
               let itemsHTML = "";
               inItems.forEach((item) => {
-                totalIn += item.amount;
+                if (!excludeIn[item.category]) totalIn += item.amount;
                 itemsHTML += `<div class="line-item"><span class="line-name">${item.category}</span><span class="line-val in">+ ${formatNumber(item.amount)}</span></div>`;
               });
               inContainer.innerHTML = itemsHTML;
@@ -10691,6 +11431,7 @@
           // Render Outflows
           var outContainer = document.getElementById(`${prefix}-out-container`);
           var totalOut = 0;
+          var excludeOut = getBareParentCategoriesToExcludeFromTotal(outItems);
           if (outContainer) {
             if (outItems.length === 0) {
               outContainer.innerHTML =
@@ -10698,7 +11439,7 @@
             } else {
               let itemsHTML = "";
               outItems.forEach((item) => {
-                totalOut += item.amount;
+                if (!excludeOut[item.category]) totalOut += item.amount;
                 itemsHTML += `<div class="line-item"><span class="line-name">${item.category}</span><span class="line-val out">- ${formatNumber(item.amount)}</span></div>`;
               });
               outContainer.innerHTML = itemsHTML;
@@ -10830,6 +11571,7 @@
             el.innerHTML = "";
             _budgetFiltersInitialized = false;
             _treasuryFiltersInitialized = false;
+            _apSupervisionGroupInitialized = false;
             console.log("[showPage] page-ap DESTROYED (innerHTML cleared)");
           }
 
@@ -10929,10 +11671,15 @@
           if (btn) btn.classList.add("active");
         }
 
-        // Close sidebar on mobile after navigating
-        var sidebar = document.querySelector(".sidebar");
-        if (sidebar && window.innerWidth <= 768) {
-          sidebar.classList.remove("open");
+        // Close sidebar (and its backdrop overlay) on mobile/tablet after
+        // navigating — matches the same ≤1024px breakpoint the off-canvas
+        // drawer itself uses (see @media max-width:1024px). Reuses
+        // closeSidebarMobile() so the overlay's "active" class is always
+        // cleared too — previously only the sidebar's "open" class was
+        // removed, leaving the semi-transparent backdrop stuck on screen
+        // and blocking clicks after selecting a page.
+        if (window.innerWidth <= 1024) {
+          closeSidebarMobile();
         }
 
         window.scrollTo(0, 0);
@@ -11601,6 +12348,7 @@
       var _budgetReqRegion = "";
       var _budgetFiltersInitialized = false;
       var _treasuryFiltersInitialized = false;
+      var _apSupervisionGroupInitialized = false;
 
       // ── View Button Navigation (identical to TMSHandoff.html) ──
 
@@ -11978,6 +12726,10 @@
 
       document.querySelectorAll(".modal-overlay").forEach(function (m) {
         m.addEventListener("click", function (e) {
+          // The Global Region modal is mandatory on first load — never let
+          // a click on its dark backdrop dismiss it before a region is
+          // actually chosen.
+          if (m.id === "modal-global-region") return;
           if (e.target === m) closeModal(m.id);
         });
       });
@@ -12399,6 +13151,532 @@
       }
       window.toast = toast;
 
+      /* ══════════════════════════════════════════════════════════════
+   EXPORT TO XLS — generic helper + one function per screen.
+   Builds a real HTML-table-based .xls file (Excel opens this natively
+   with formatting), always exporting the FULL currently-filtered
+   dataset (not just the current pagination page), mirroring the exact
+   filters/search active on screen at the moment Export is clicked.
+══════════════════════════════════════════════════════════════ */
+      function escapeXlsCell(val) {
+        if (val === null || val === undefined) return "";
+        return String(val)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function exportRowsToXLS(filename, headers, rows) {
+        if (!rows || rows.length === 0) {
+          toast("Nothing to Export", "No rows match the current filters.", "alert");
+          return;
+        }
+
+        var html =
+          '<table><thead><tr>' +
+          headers
+            .map(function (h) {
+              return (
+                '<th style="background:#A5845B;color:#ffffff;font-weight:bold;' +
+                'padding:6px 10px;border:1px solid #8a6c48;">' +
+                escapeXlsCell(h) +
+                "</th>"
+              );
+            })
+            .join("") +
+          "</tr></thead><tbody>";
+
+        rows.forEach(function (r) {
+          html +=
+            "<tr>" +
+            r
+              .map(function (c) {
+                return (
+                  '<td style="padding:5px 10px;border:1px solid #ddd;">' +
+                  escapeXlsCell(c) +
+                  "</td>"
+                );
+              })
+              .join("") +
+            "</tr>";
+        });
+
+        html += "</tbody></table>";
+
+        var template =
+          '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+          'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+          'xmlns="http://www.w3.org/TR/REC-html40">' +
+          '<head><meta charset="UTF-8" /></head><body>' +
+          html +
+          "</body></html>";
+
+        var blob = new Blob([template], {
+          type: "application/vnd.ms-excel;charset=utf-8;",
+        });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = filename.toLowerCase().endsWith(".xls")
+          ? filename
+          : filename + ".xls";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast("Exported", rows.length + " row(s) exported to Excel.", "success");
+      }
+
+      function exportFilenameStamp() {
+        var d = new Date();
+        var pad = function (n) {
+          return n < 10 ? "0" + n : n;
+        };
+        return (
+          d.getFullYear() +
+          "-" +
+          pad(d.getMonth() + 1) +
+          "-" +
+          pad(d.getDate()) +
+          "_" +
+          pad(d.getHours()) +
+          pad(d.getMinutes())
+        );
+      }
+
+      // ── AP Supervision (Aging table) ──
+      function exportAPAgingXLS() {
+        var tierEl = document.getElementById("ap-tier-filter");
+        var bracketEl = document.getElementById("ap-aging-bracket-filter");
+        var hasLocalFilter =
+          (tierEl && tierEl.value !== "All") ||
+          (bracketEl && bracketEl.value !== "All");
+        var dataSource = hasLocalFilter
+          ? apLocalFilteredData
+          : dynamicApAgingData;
+
+        var headers = [
+          "Vendor Name",
+          "BU",
+          "Opening Balance",
+          "Original Payable Voucher",
+          "Total Deductions",
+          "Total Payment",
+          "Not Allocated",
+          "Due Amount",
+          "Not Due",
+          "1–30",
+          "31–60",
+          "61–90",
+          "91–120",
+          "121–150",
+          ">150",
+        ];
+
+        var rows = (dataSource || []).map(function (r) {
+          return [
+            r.cfm_vendorenglishname || "-",
+            r.cfm_bushortname || "-",
+            Number(r.cfm_openingbalance || 0),
+            Number(r.cfm_originalpayablevoucheramount || 0),
+            Number(r.cfm_totaldeductions || 0),
+            Number(r.cfm_totalpayment || 0),
+            Number(r.cfm_notallocatedpayment || 0),
+            Number(r.cfm_dueamount || 0),
+            Number(r.cfm_notdue || 0),
+            Number(r.cfm_jan || 0),
+            Number(r.cfm_60 || 0),
+            Number(r.cfm_90 || 0),
+            Number(r.cfm_120 || 0),
+            Number(r.cfm_150 || 0),
+            Number(r.cfm_above150 || 0),
+          ];
+        });
+
+        exportRowsToXLS(
+          "AP_Aging_" + exportFilenameStamp(),
+          headers,
+          rows,
+        );
+      }
+
+      // ── Budget Request (AP View) ──
+      function exportAPBudgetXLS() {
+        if (!_apBudgetLastRows || _apBudgetLastRows.length === 0) {
+          toast(
+            "Nothing to Export",
+            "Select a Year and Region with budget data first.",
+            "alert",
+          );
+          return;
+        }
+
+        var monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        var headers = ["Entity"].concat(monthNames).concat(["Total"]);
+
+        var exportRows = _apBudgetLastRows.map(function (r) {
+          var total = r.months.reduce(function (s, v) {
+            return s + (v || 0);
+          }, 0);
+          return [r.entity]
+            .concat(
+              r.months.map(function (v) {
+                return Number(v || 0);
+              }),
+            )
+            .concat([Number(total)]);
+        });
+
+        exportRowsToXLS(
+          "Budget_Request_AP_" +
+            (_apBudgetLastRegion || "region") +
+            "_" +
+            (_apBudgetLastYear || "year") +
+            "_" +
+            exportFilenameStamp(),
+          headers,
+          exportRows,
+        );
+      }
+
+      // ── Payment Plan (AP View) ──
+      function exportPaymentPlanAPXLS() {
+        var statusEl =
+          document.getElementById("pp-status-filter") ||
+          document.getElementById("pp-ap-filter");
+        var filterVal = statusEl
+          ? statusEl.value
+          : window.currentPPFilter || "all";
+        var treasuryStatusEl = document.getElementById("pp-treasury-filter");
+        var treasuryFilterVal = treasuryStatusEl
+          ? treasuryStatusEl.value
+          : window.currentPPTreasuryFilter || "all";
+        var buFilterEl = document.getElementById("pp-bu-filter");
+        var buFilterVal = buFilterEl
+          ? buFilterEl.value
+          : window.currentPPBuFilter || "all";
+        var searchEl = document.getElementById("pp-search-filter");
+        var searchVal = searchEl
+          ? searchEl.value.toLowerCase()
+          : window.currentPPSearch || "";
+
+        var regionBUs = window.globalRegion
+          ? getBUNamesForRegion(window.globalRegion)
+          : null;
+        var rows = ppLines.filter(function (r) {
+          if (regionBUs && regionBUs.indexOf(r.bu) === -1) return false;
+          if (filterVal !== "all") {
+            if (r.status.toString() !== filterVal) return false;
+          }
+          if (treasuryFilterVal !== "all") {
+            if (
+              r.treasuryStatus === null ||
+              r.treasuryStatus === undefined ||
+              r.treasuryStatus.toString() !== treasuryFilterVal
+            )
+              return false;
+          }
+          if (buFilterVal !== "all") {
+            if ((r.bu || "-") !== buFilterVal) return false;
+          }
+          if (searchVal) {
+            var combined = (
+              r.vendor +
+              " " +
+              r.code +
+              " " +
+              (r.notes || "")
+            ).toLowerCase();
+            if (combined.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
+        rows.sort(function (a, b) {
+          var da = a.modifiedOn ? new Date(a.modifiedOn).getTime() : 0;
+          var db = b.modifiedOn ? new Date(b.modifiedOn).getTime() : 0;
+          return db - da;
+        });
+
+        var headers = [
+          "Category",
+          "Sub Ledger Code",
+          "Vendor Name",
+          "BU",
+          "Initial Amount",
+          "Amount",
+          "Due Date",
+          "AP Notes",
+          "Treasury Status",
+          "Treasury Comment",
+          "STATUS",
+        ];
+
+        var exportRows = rows.map(function (r) {
+          return [
+            r.category || "-",
+            r.code || "-",
+            r.vendor || "-",
+            r.bu || "-",
+            r.plannedAmount != null ? Number(r.plannedAmount) : "",
+            r.currentAmount != null ? Number(r.currentAmount) : "",
+            r.due || "-",
+            r.notes || "-",
+            r.treasuryDecision || "-",
+            r.lastComment || "-",
+            r.currentStage || "-",
+          ];
+        });
+
+        exportRowsToXLS(
+          "Payment_Plan_AP_" + exportFilenameStamp(),
+          headers,
+          exportRows,
+        );
+      }
+
+      // ── Payment Plan (SC View) ──
+      function exportPaymentPlanSCXLS() {
+        var statusEl =
+          document.getElementById("pp-status-filter-sc") ||
+          document.getElementById("pp-sc-filter");
+        var filterVal = statusEl
+          ? statusEl.value
+          : window.currentPPFilterSC || "all";
+        var searchEl = document.getElementById("pp-search-filter-sc");
+        var searchVal = searchEl
+          ? searchEl.value.toLowerCase()
+          : window.currentPPSearchSC || "";
+        var buFilterElSC = document.getElementById("pp-bu-filter-sc");
+        var buFilterValSC = buFilterElSC
+          ? buFilterElSC.value
+          : window.currentPPBuFilterSC || "all";
+
+        var rows = ppLines.filter(function (r) {
+          if (filterVal === "all") {
+            if (r.status !== 3) return false;
+          } else {
+            if (r.status.toString() !== filterVal) return false;
+          }
+          if (buFilterValSC !== "all") {
+            if ((r.bu || "-") !== buFilterValSC) return false;
+          }
+          if (searchVal) {
+            var combined = (
+              r.vendor +
+              " " +
+              r.code +
+              " " +
+              (r.notes || "")
+            ).toLowerCase();
+            if (combined.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
+        rows.sort(function (a, b) {
+          var da = a.modifiedOn ? new Date(a.modifiedOn).getTime() : 0;
+          var db = b.modifiedOn ? new Date(b.modifiedOn).getTime() : 0;
+          return db - da;
+        });
+
+        var headers = [
+          "Category",
+          "Sub Ledger Code",
+          "Vendor Name",
+          "BU",
+          "Initial Amount",
+          "Amount",
+          "Due Date",
+          "AP Notes",
+          "Treasury Status",
+          "Treasury Comment",
+          "STATUS",
+        ];
+
+        var exportRows = rows.map(function (r) {
+          return [
+            r.category || "-",
+            r.code || "-",
+            r.vendor || "-",
+            r.bu || "-",
+            r.plannedAmount != null ? Number(r.plannedAmount) : "",
+            r.currentAmount != null ? Number(r.currentAmount) : "",
+            r.due || "-",
+            r.notes || "-",
+            r.treasuryDecision || "-",
+            r.lastComment || "-",
+            r.currentStage || "-",
+          ];
+        });
+
+        exportRowsToXLS(
+          "Payment_Plan_SC_" + exportFilenameStamp(),
+          headers,
+          exportRows,
+        );
+      }
+
+      // ── Advance Payments ──
+      function exportAdvancePaymentsXLS() {
+        var searchEl = document.getElementById("adv-search-filter");
+        var searchVal = searchEl ? searchEl.value.toLowerCase().trim() : "";
+        var statusEl = document.getElementById("adv-status-filter");
+        var statusVal = statusEl ? statusEl.value : "all";
+        var buFilterEl = document.getElementById("adv-bu-filter");
+        var buFilterVal = buFilterEl ? buFilterEl.value : "all";
+        var fromEl = document.getElementById("adv-date-from");
+        var fromVal = fromEl ? fromEl.value : "";
+        var toEl = document.getElementById("adv-date-to");
+        var toVal = toEl ? toEl.value : "";
+
+        var rows = advPaymentRequests.filter(function (req) {
+          if (statusVal !== "all") {
+            if (String(req.statusValue) !== statusVal) return false;
+          }
+          if (buFilterVal !== "all") {
+            if ((req.bu || "-") !== buFilterVal) return false;
+          }
+          if (fromVal) {
+            if (!req.dateRaw || req.dateRaw < fromVal) return false;
+          }
+          if (toVal) {
+            if (!req.dateRaw || req.dateRaw > toVal) return false;
+          }
+          if (searchVal) {
+            var combined = (
+              req.vendorCode +
+              " " +
+              req.vendorName +
+              " " +
+              (req.category || "") +
+              " " +
+              (req.notes || "") +
+              " " +
+              (req.requestedBy || "")
+            ).toLowerCase();
+            if (combined.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
+        var headers = [
+          "Code",
+          "Name",
+          "BU",
+          "Category",
+          "Advance Payment Amount",
+          "Date",
+          "Notes",
+          "Requested By",
+          "Status",
+        ];
+
+        var exportRows = rows.map(function (req) {
+          return [
+            req.vendorCode || "-",
+            req.vendorName || "-",
+            req.bu || "-",
+            req.category || "-",
+            Number(req.amount || 0),
+            req.date || "-",
+            req.notes || "-",
+            req.requestedBy || "-",
+            advStatusMeta(req.statusValue).label,
+          ];
+        });
+
+        exportRowsToXLS(
+          "Advance_Payments_" + exportFilenameStamp(),
+          headers,
+          exportRows,
+        );
+      }
+
+      // ── Treasury Workflow ──
+      function exportTreasuryWorkflowXLS() {
+        var searchElRaw = document.getElementById("t-search-filter") || {
+          value: "",
+        };
+        var searchVal = searchElRaw.value.toLowerCase();
+        var tBuFilterVal = (
+          document.getElementById("t-bu-filter") || { value: "all" }
+        ).value;
+
+        var rows = treasuryPPLines.filter(function (r) {
+          if (tBuFilterVal !== "all") {
+            if ((r.bu || "-") !== tBuFilterVal) return false;
+          }
+          if (searchVal) {
+            var combined = (
+              r.vendor +
+              " " +
+              r.code +
+              " " +
+              (r.notes || "")
+            ).toLowerCase();
+            if (combined.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
+        rows.sort(function (a, b) {
+          var da = a.modifiedOn ? new Date(a.modifiedOn).getTime() : 0;
+          var db = b.modifiedOn ? new Date(b.modifiedOn).getTime() : 0;
+          return db - da;
+        });
+
+        var headers = [
+          "Category",
+          "Sub Ledger Code",
+          "Vendor Name",
+          "BU",
+          "Initial Amount",
+          "Amount",
+          "Due Date",
+          "AP Notes",
+          "Treasury Status",
+          "Treasury Comment",
+          "STATUS",
+        ];
+
+        var exportRows = rows.map(function (r) {
+          return [
+            r.category || "-",
+            r.code || "-",
+            r.vendor || "-",
+            r.bu || "-",
+            r.plannedAmount != null ? Number(r.plannedAmount) : "",
+            r.currentAmount != null ? Number(r.currentAmount) : "",
+            r.due || "-",
+            r.notes || "-",
+            r.treasuryDecision || "-",
+            r.lastComment || "-",
+            r.currentStage || "-",
+          ];
+        });
+
+        exportRowsToXLS(
+          "Treasury_Workflow_" + exportFilenameStamp(),
+          headers,
+          exportRows,
+        );
+      }
+
       function submitNewEntry() {
         var ref = document.getElementById("ne-ref");
         var amount = document.getElementById("ne-amount");
@@ -12472,6 +13750,31 @@
           if (main) main.classList.add("sb-collapsed");
         }
       }
+
+      // Desktop "collapsed" (icon-only) sidebar state must never persist
+      // once the viewport drops to mobile/tablet width — .sidebar.collapsed
+      // .sb-item sets font-size:0 to hide top-level labels (relying on
+      // icon-only tooltips instead), which is only meant for the ≥1024px
+      // desktop rail. If the window is resized/rotated down to ≤1024px
+      // (or DevTools' Device Toolbar is switched to a narrow preset)
+      // without a full page reload, that leftover "collapsed" class stays
+      // stuck on #main-sidebar while the mobile off-canvas drawer's "open"
+      // class gets added on top of it — producing a broken hybrid where
+      // sub-nav items (which have their own inline font-size) still show
+      // text, but top-level items (Cash Flow Statement, TMS Hand Off, AP
+      // Planning, Configuration) render icon-only with invisible labels.
+      // This listener clears "collapsed" the moment the width crosses into
+      // mobile/tablet range so that state can never leak in.
+      function clearDesktopCollapseOnNarrowWidth() {
+        var sidebar = document.getElementById("main-sidebar");
+        if (!sidebar) return;
+        if (window.innerWidth <= 1024 && sidebar.classList.contains("collapsed")) {
+          sidebar.classList.remove("collapsed");
+          var main = document.getElementById("main-root");
+          if (main) main.classList.remove("sb-collapsed");
+        }
+      }
+      window.addEventListener("resize", clearDesktopCollapseOnNarrowWidth);
 
       // Detect task lookup field from Dataverse schema (from TMSHandoff)
       async function detectTaskLookupField() {
@@ -12688,7 +13991,7 @@
         rows = rows.slice((tPage - 1) * T_PER_PAGE, tPage * T_PER_PAGE);
 
         var gridCols =
-          "130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 120px";
+          "130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 160px";
 
         var html =
           '<div style="display:grid;grid-template-columns:' +
@@ -12921,6 +14224,7 @@
       var _treasuryLastYear = "";
       var _treasuryLastRegion = "";
       var _treasuryEditMode = false;
+      var _treasuryShowActual = false;
 
       async function loadTreasuryBudget() {
         var year = document.getElementById("treasury-filter-year").value;
@@ -12939,6 +14243,7 @@
         _treasuryLastYear = year;
         _treasuryLastRegion = region;
         _treasuryEditMode = false;
+        _treasuryActualsLoaded = false;
         setTreasuryEditToggleLabel();
 
         try {
@@ -12956,8 +14261,29 @@
           // Loads read-only by default — the Treasury user must press "Edit"
           // to unlock the input fields and reveal the Import button, so
           // numbers can't be changed by accident while just browsing.
-          container.innerHTML = generateBudgetTableHTML(rows, false);
+          container.innerHTML = generateBudgetTableHTML(
+            rows,
+            false,
+            _treasuryShowActual,
+          );
           if (editBtn) editBtn.style.display = "";
+
+          // If "Show Actual" was already switched on before changing
+          // Year/Region, fetch Actuals for the newly loaded period too
+          // (otherwise the freshly loaded rows would show blank "—" until
+          // the person manually toggled it off/on again).
+          if (_treasuryShowActual) {
+            await fetchActualAmountsInto(_treasuryLastRows, year, region);
+            _treasuryActualsLoaded = true;
+            if (document.getElementById("treasury-table-container")) {
+              document.getElementById("treasury-table-container").innerHTML =
+                generateBudgetTableHTML(
+                  _treasuryLastRows,
+                  _treasuryEditMode,
+                  _treasuryShowActual,
+                );
+            }
+          }
         } catch (e) {
           console.error("loadTreasuryBudget error:", e);
           container.innerHTML =
@@ -12994,11 +14320,58 @@
         container.innerHTML = generateBudgetTableHTML(
           _treasuryLastRows,
           _treasuryEditMode,
+          _treasuryShowActual,
         );
         if (actions)
           actions.style.display = _treasuryEditMode ? "block" : "none";
         if (importBtn)
           importBtn.style.display = _treasuryEditMode ? "" : "none";
+      }
+
+      // Toggles the read-only "Actual" line shown beneath each month's
+      // Amount in the Treasury Budget table. Purely a display filter —
+      // never affects Save/Import/Export, which only ever touch
+      // cfm_amount.
+      var _treasuryActualsLoaded = false;
+
+      async function toggleTreasuryShowActual() {
+        if (!_treasuryLastRows || _treasuryLastRows.length === 0) return;
+        _treasuryShowActual = !_treasuryShowActual;
+        var btn = document.getElementById("treasury-show-actual-btn");
+
+        // First time switching ON: fetch Actual Amounts lazily (separate,
+        // lightweight query — see fetchActualAmountsInto) instead of every
+        // table load, then cache them on _treasuryLastRows for next time.
+        if (_treasuryShowActual && !_treasuryActualsLoaded) {
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML =
+              '<i class="fa-solid fa-spinner fa-spin icon-sm"></i> Loading…';
+          }
+          await fetchActualAmountsInto(
+            _treasuryLastRows,
+            _treasuryLastYear,
+            _treasuryLastRegion,
+          );
+          _treasuryActualsLoaded = true;
+          if (btn) btn.disabled = false;
+        }
+
+        if (btn) {
+          btn.innerHTML =
+            '<i class="fa-solid fa-' +
+            (_treasuryShowActual ? "eye-slash" : "eye") +
+            ' icon-sm"></i> ' +
+            (_treasuryShowActual ? "Hide Actual" : "Show Actual");
+        }
+        var container = document.getElementById("treasury-table-container");
+        if (container) {
+          container.innerHTML = generateBudgetTableHTML(
+            _treasuryLastRows,
+            _treasuryEditMode,
+            _treasuryShowActual,
+          );
+        }
       }
 
       // ── Treasury Budget — CSV Export / Import ──────────────────────────
@@ -13381,6 +14754,7 @@
       function lookupAdvVendor(code) {
         var nameEl = document.getElementById("adv-vendor-name");
         var buEl = document.getElementById("adv-vendor-bu");
+        var categoryEl = document.getElementById("adv-vendor-category");
         if (!nameEl) return;
         _advMatchedCompany = null;
 
@@ -13388,6 +14762,7 @@
           nameEl.value = "";
           nameEl.style.color = "var(--muted)";
           if (buEl) buEl.value = "";
+          if (categoryEl) categoryEl.value = "";
           return;
         }
         code = code.trim();
@@ -13396,7 +14771,7 @@
         if (typeof XrmObj !== "undefined" && XrmObj && XrmObj.WebApi) {
           XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_insurancecompany",
-            "?$select=cfm_insurancecompanyid,cfm_name,cfm_code,_cfm_bu_value&$filter=cfm_code eq '" +
+            "?$select=cfm_insurancecompanyid,cfm_name,cfm_code,_cfm_bu_value,cfm_category&$filter=cfm_code eq '" +
               code.replace(/'/g, "''") +
               "'&$top=1",
           )
@@ -13413,11 +14788,22 @@
                   comp[
                     "_cfm_bu_value@OData.Community.Display.V1.FormattedValue"
                   ] || "";
+                // cfm_category: if it's a Choice field, Dataverse returns a
+                // FormattedValue annotation for the display label — prefer
+                // that when present, otherwise fall back to the raw value
+                // (covers a plain text field).
+                var categoryVal =
+                  comp[
+                    "cfm_category@OData.Community.Display.V1.FormattedValue"
+                  ] ||
+                  comp.cfm_category ||
+                  "";
                 _advMatchedCompany = {
                   id: comp.cfm_insurancecompanyid,
                   name: comp.cfm_name || "-",
                   code: comp.cfm_code || code,
                   bu: buName,
+                  category: categoryVal,
                 };
                 nameEl.value = _advMatchedCompany.name;
                 nameEl.style.color = "var(--green-dark)";
@@ -13429,12 +14815,23 @@
                     : "var(--muted)";
                   buEl.style.fontWeight = buName ? "700" : "600";
                 }
+                if (categoryEl) {
+                  categoryEl.value = categoryVal || "-";
+                  categoryEl.style.color = categoryVal
+                    ? "var(--green-dark)"
+                    : "var(--muted)";
+                  categoryEl.style.fontWeight = categoryVal ? "700" : "600";
+                }
               } else {
                 nameEl.value = "Company not found";
                 nameEl.style.color = "var(--danger)";
                 if (buEl) {
                   buEl.value = "";
                   buEl.style.color = "var(--muted)";
+                }
+                if (categoryEl) {
+                  categoryEl.value = "";
+                  categoryEl.style.color = "var(--muted)";
                 }
               }
             })
@@ -13446,6 +14843,7 @@
               nameEl.value = "Lookup error";
               nameEl.style.color = "var(--danger)";
               if (buEl) buEl.value = "";
+              if (categoryEl) categoryEl.value = "";
             });
         } else {
           // Offline fallback: try matching against locally loaded plan lines
@@ -13458,6 +14856,7 @@
               name: match.vendor,
               code: code,
               bu: match.bu && match.bu !== "-" ? match.bu : "",
+              category: "",
             };
             nameEl.value = match.vendor;
             nameEl.style.color = "var(--green-dark)";
@@ -13468,11 +14867,16 @@
                 ? "var(--green-dark)"
                 : "var(--muted)";
             }
+            if (categoryEl) {
+              categoryEl.value = "";
+              categoryEl.style.color = "var(--muted)";
+            }
           } else {
             nameEl.value = code.length >= 6 ? "Company not found" : "";
             nameEl.style.color =
               code.length >= 6 ? "var(--danger)" : "var(--muted)";
             if (buEl) buEl.value = "";
+            if (categoryEl) categoryEl.value = "";
           }
         }
       }
@@ -13482,6 +14886,7 @@
           "adv-vendor-code",
           "adv-vendor-name",
           "adv-vendor-bu",
+          "adv-vendor-category",
           "adv-amount",
           "adv-notes",
           "adv-edit-id",
@@ -13500,6 +14905,11 @@
         if (buEl) {
           buEl.style.color = "var(--muted)";
           buEl.style.fontWeight = "600";
+        }
+        var categoryEl = document.getElementById("adv-vendor-category");
+        if (categoryEl) {
+          categoryEl.style.color = "var(--muted)";
+          categoryEl.style.fontWeight = "600";
         }
         var labelEl = document.getElementById("adv-form-submit-label");
         if (labelEl) labelEl.textContent = "Add advance payment";
@@ -13563,12 +14973,25 @@
             req.bu && req.bu !== "-" ? "var(--green-dark)" : "var(--muted)";
           buEl.style.fontWeight = req.bu && req.bu !== "-" ? "700" : "600";
         }
-        // Preserve the BU so resubmitting without retyping the code keeps it.
+        var categoryEl = document.getElementById("adv-vendor-category");
+        if (categoryEl) {
+          categoryEl.value =
+            req.category && req.category !== "-" ? req.category : "";
+          categoryEl.style.color =
+            req.category && req.category !== "-"
+              ? "var(--green-dark)"
+              : "var(--muted)";
+          categoryEl.style.fontWeight =
+            req.category && req.category !== "-" ? "700" : "600";
+        }
+        // Preserve the BU/Category so resubmitting without retyping the
+        // code keeps them.
         _advMatchedCompany = {
           id: null,
           name: req.vendorName,
           code: req.vendorCode,
           bu: req.bu && req.bu !== "-" ? req.bu : "",
+          category: req.category && req.category !== "-" ? req.category : "",
         };
         var amtEl = document.getElementById("adv-amount");
         if (amtEl)
@@ -13708,6 +15131,7 @@
           vendorCode: code.trim(),
           vendorName: name.trim(),
           bu: (_advMatchedCompany && _advMatchedCompany.bu) || "-",
+          category: (_advMatchedCompany && _advMatchedCompany.category) || "-",
           amount: parsedAmount,
           date: displayDate,
           notes: notes.trim(),
@@ -13732,6 +15156,9 @@
         // uses the LOGICAL name, which is lowercase "cfm_bu" here, not the
         // schema name "cfm_BU" shown in the maker portal — using the wrong
         // case throws "Could not find a property named 'cfm_BU'".
+        // cfm_category on cfm_advancedpayment mirrors cfm_bu's pattern —
+        // plain text, copied across from the matched cfm_insurancecompany
+        // record's cfm_category value.
         // cfm_statusofadvancepayment is reset to 0 (Pending in AP) on both a
         // brand-new request and a resubmit of a previously rejected one — a
         // resubmit always re-enters the workflow at the AP review step.
@@ -13741,6 +15168,7 @@
           cfm_notes: notes.trim(),
           cfm_companyname: name.trim(),
           cfm_bu: (_advMatchedCompany && _advMatchedCompany.bu) || "",
+          cfm_category: (_advMatchedCompany && _advMatchedCompany.category) || "",
           cfm_statusofadvancepayment: 0,
         };
 
@@ -13824,7 +15252,7 @@
         try {
           var res = await XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_advancedpayment",
-            "?$select=cfm_advancedpaymentid,cfm_amount,cfm_date,cfm_notes,cfm_companyname,cfm_bu,cfm_statusofadvancepayment,_cfm_requestedby_value,createdon" +
+            "?$select=cfm_advancedpaymentid,cfm_amount,cfm_date,cfm_notes,cfm_companyname,cfm_bu,cfm_category,cfm_statusofadvancepayment,_cfm_requestedby_value,createdon" +
               "&$expand=cfm_CompanyCode($select=cfm_name,cfm_code)" +
               "&$orderby=createdon desc",
           );
@@ -13850,11 +15278,19 @@
               r[
                 "_cfm_requestedby_value@OData.Community.Display.V1.FormattedValue"
               ] || "-";
+            // cfm_category on cfm_advancedpayment: read the FormattedValue
+            // annotation first (covers the case it's a Choice field), else
+            // fall back to the raw value (plain text field).
+            var categoryVal =
+              r["cfm_category@OData.Community.Display.V1.FormattedValue"] ||
+              r.cfm_category ||
+              "-";
             return {
               id: r.cfm_advancedpaymentid,
               vendorCode: comp.cfm_code || "-",
               vendorName: r.cfm_companyname || comp.cfm_name || "-",
               bu: r.cfm_bu || "-",
+              category: categoryVal,
               amount: r.cfm_amount || 0,
               date: dateStr,
               dateRaw: r.cfm_date ? String(r.cfm_date).split("T")[0] : "",
@@ -13946,6 +15382,8 @@
               " " +
               req.vendorName +
               " " +
+              (req.category || "") +
+              " " +
               (req.notes || "") +
               " " +
               (req.requestedBy || "")
@@ -13960,8 +15398,8 @@
         if (rows.length === 0) {
           tbody.innerHTML =
             advPaymentRequests.length === 0
-              ? '<tr><td colspan="9" style="text-align:center;padding:36px 16px;color:var(--dim);font:400 12px var(--body);">No advance payments yet. Click <strong>Add advance payment</strong> to raise a request.</td></tr>'
-              : '<tr><td colspan="9" style="text-align:center;padding:36px 16px;color:var(--dim);font:400 12px var(--body);">No advance payments match the current filters.</td></tr>';
+              ? '<tr><td colspan="10" style="text-align:center;padding:36px 16px;color:var(--dim);font:400 12px var(--body);">No advance payments yet. Click <strong>Add advance payment</strong> to raise a request.</td></tr>'
+              : '<tr><td colspan="10" style="text-align:center;padding:36px 16px;color:var(--dim);font:400 12px var(--body);">No advance payments match the current filters.</td></tr>';
           if (pagEl) pagEl.innerHTML = "";
           return;
         }
@@ -13996,6 +15434,10 @@
           html +=
             '<td style="padding:11px 16px;font:700 11px var(--mono);color:var(--muted);">' +
             (req.bu || "-") +
+            "</td>";
+          html +=
+            '<td style="padding:11px 16px;font:500 12px var(--body);color:var(--text-body);">' +
+            (req.category || "-") +
             "</td>";
           html +=
             '<td style="padding:11px 16px;font:700 12px var(--mono);color:var(--gold-dark);text-align:center;">' +
@@ -14289,11 +15731,19 @@
       }
 
       // Loads budget request data from Dataverse and renders the AP Budget table.
+      var _apBudgetLastRows = null;
+      var _apBudgetLastYear = "";
+      var _apBudgetLastRegion = "";
+      var _apBudgetShowActual = false;
+
       async function loadAPBudgetTable() {
         var year = document.getElementById("ap-req-filter-year").value;
         var region = document.getElementById("ap-req-filter-region").value;
         var container = document.getElementById("ap-budget-table-container");
         if (!container) return;
+        _apBudgetLastRows = null;
+        _apBudgetLastYear = year;
+        _apBudgetLastRegion = region;
         if (!year || !region) {
           container.innerHTML =
             '<div style="text-align:center;padding:60px 20px;color:var(--muted);font:600 12px var(--sans)"><i class="fa-solid fa-filter icon-sm"></i> Select Year and Region to view budget data.</div>';
@@ -14312,11 +15762,78 @@
               ".</div>";
             return;
           }
-          container.innerHTML = generateBudgetTableHTML(rows, false);
+          _apBudgetLastRows = rows;
+          container.innerHTML = generateBudgetTableHTML(
+            rows,
+            false,
+            _apBudgetShowActual,
+          );
+
+          // If "Show Actual" was already switched on before changing
+          // Year/Region, fetch Actuals for the newly loaded period too.
+          if (_apBudgetShowActual) {
+            await fetchActualAmountsInto(_apBudgetLastRows, year, region);
+            _apActualsLoaded = true;
+            var apContainer = document.getElementById(
+              "ap-budget-table-container",
+            );
+            if (apContainer) {
+              apContainer.innerHTML = generateBudgetTableHTML(
+                _apBudgetLastRows,
+                false,
+                _apBudgetShowActual,
+              );
+            }
+          }
         } catch (e) {
           console.error("loadAPBudgetTable error:", e);
           container.innerHTML =
             '<div style="text-align:center;padding:60px 20px;color:var(--danger);font:600 12px var(--sans)">Failed to load budget data.</div>';
+        }
+      }
+
+      var _apActualsLoaded = false;
+
+      // Toggles the read-only "Actual" line shown beneath each month's
+      // Amount in the AP Budget Request table. Purely a display filter —
+      // AP's table is always read-only anyway, so this has no interaction
+      // with Save/Import/Export at all.
+      async function toggleAPShowActual() {
+        if (!_apBudgetLastRows || _apBudgetLastRows.length === 0) return;
+        _apBudgetShowActual = !_apBudgetShowActual;
+        var btn = document.getElementById("ap-show-actual-btn");
+
+        // First time switching ON: fetch Actual Amounts lazily (separate,
+        // lightweight query) instead of on every table load.
+        if (_apBudgetShowActual && !_apActualsLoaded) {
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML =
+              '<i class="fa-solid fa-spinner fa-spin icon-sm"></i> Loading…';
+          }
+          await fetchActualAmountsInto(
+            _apBudgetLastRows,
+            _apBudgetLastYear,
+            _apBudgetLastRegion,
+          );
+          _apActualsLoaded = true;
+          if (btn) btn.disabled = false;
+        }
+
+        if (btn) {
+          btn.innerHTML =
+            '<i class="fa-solid fa-' +
+            (_apBudgetShowActual ? "eye-slash" : "eye") +
+            ' icon-sm"></i> ' +
+            (_apBudgetShowActual ? "Hide Actual" : "Show Actual");
+        }
+        var container = document.getElementById("ap-budget-table-container");
+        if (container) {
+          container.innerHTML = generateBudgetTableHTML(
+            _apBudgetLastRows,
+            false,
+            _apBudgetShowActual,
+          );
         }
       }
 
@@ -14385,41 +15902,64 @@
           return result;
         }
 
+        // Collect every missing (BU, month) combination first, then create
+        // them in parallel batches instead of one sequential await per
+        // record. Sequentially awaiting up to buNames.length x 12 (as many
+        // as ~204 for KSA) individual createRecord calls, one after
+        // another, is what was making "Request Budget" so slow on a
+        // brand-new Year/Region — each round-trip waits for the previous
+        // one to finish. Batching keeps a reasonable number of requests in
+        // flight at once (staying comfortably under Dataverse's per-user
+        // concurrent request limits) while cutting total wait time down
+        // from "sum of every round-trip" to roughly "number of batches".
+        var missing = [];
         for (var i = 0; i < buNames.length; i++) {
           var bu = buNames[i];
           for (var m = 1; m <= 12; m++) {
             var monthStr = String(m);
             var key = bu + "|" + monthStr;
-
             if (existingKeys[key]) {
-              // Already exists — do not create another, do not overwrite it.
               result.existing++;
-              continue;
-            }
-
-            try {
-              // Missing — create with only the identifying fields; all other
-              // fields are left at their Dataverse default values.
-              await XrmObj.WebApi.createRecord("cfm_requestbudget", {
-                cfm_year: year,
-                cfm_region: regionCode,
-                cfm_bu: bu,
-                cfm_month: monthStr,
-              });
-              result.created++;
-              existingKeys[key] = true; // guard against re-processing within this same pass
-            } catch (e) {
-              console.error(
-                "ensureBudgetRequestRecordsExist error for BU '" +
-                  bu +
-                  "' month " +
-                  monthStr +
-                  ":",
-                e,
-              );
-              result.errors.push(bu + "-" + monthStr);
+            } else {
+              missing.push({ bu: bu, month: monthStr });
             }
           }
+        }
+
+        var BATCH_SIZE = 10;
+        for (var b = 0; b < missing.length; b += BATCH_SIZE) {
+          var batch = missing.slice(b, b + BATCH_SIZE);
+          var batchResults = await Promise.all(
+            batch.map(function (item) {
+              return XrmObj.WebApi.createRecord("cfm_requestbudget", {
+                cfm_year: year,
+                cfm_region: regionCode,
+                cfm_bu: item.bu,
+                cfm_month: item.month,
+              })
+                .then(function () {
+                  return { ok: true, item: item };
+                })
+                .catch(function (e) {
+                  return { ok: false, item: item, error: e };
+                });
+            }),
+          );
+          batchResults.forEach(function (r) {
+            if (r.ok) {
+              result.created++;
+            } else {
+              console.error(
+                "ensureBudgetRequestRecordsExist error for BU '" +
+                  r.item.bu +
+                  "' month " +
+                  r.item.month +
+                  ":",
+                r.error,
+              );
+              result.errors.push(r.item.bu + "-" + r.item.month);
+            }
+          });
         }
 
         return result;
@@ -14445,18 +15985,41 @@
 
         if (typeof XrmObj !== "undefined" && XrmObj && XrmObj.WebApi) {
           try {
-            var res = await XrmObj.WebApi.retrieveMultipleRecords(
+            // Aggregate query — asks Dataverse for the DISTINCT cfm_year
+            // values only, instead of pulling every cfm_requestbudget
+            // record (12 months x every BU x every year x both regions —
+            // can easily be thousands of rows) just to read one field off
+            // each. This is what was making the Year dropdown slow to
+            // populate on load.
+            var aggRes = await XrmObj.WebApi.retrieveMultipleRecords(
               "cfm_requestbudget",
-              "?$select=cfm_year",
+              "?$apply=groupby((cfm_year))",
             );
-            (res.entities || []).forEach(function (r) {
+            (aggRes.entities || []).forEach(function (r) {
               if (r.cfm_year) yearsSet[String(r.cfm_year)] = true;
             });
-          } catch (e) {
-            console.error(
-              "Error loading distinct Budget Request years from Dataverse:",
-              e,
+          } catch (aggErr) {
+            // Aggregation may not be enabled on this environment — fall
+            // back to a plain query, but capped with $top so it can never
+            // silently scan the entire table.
+            console.warn(
+              "Aggregate ($apply=groupby) query for Budget years failed, falling back to a capped scan:",
+              aggErr,
             );
+            try {
+              var res = await XrmObj.WebApi.retrieveMultipleRecords(
+                "cfm_requestbudget",
+                "?$select=cfm_year&$top=5000",
+              );
+              (res.entities || []).forEach(function (r) {
+                if (r.cfm_year) yearsSet[String(r.cfm_year)] = true;
+              });
+            } catch (e) {
+              console.error(
+                "Error loading distinct Budget Request years from Dataverse:",
+                e,
+              );
+            }
           }
         }
 
@@ -14511,6 +16074,59 @@
         );
       }
 
+      // ── Actual Amount (cfm_actualamount) — fetched lazily, on demand ──
+      // This is deliberately a SEPARATE, lightweight query from
+      // fetchBudgetRequests() above. cfm_actualamount was originally
+      // included directly in that main query, but that made every single
+      // Budget table load slow (cfm_actualamount is populated from an
+      // external process/table — likely a Rollup or Calculated column in
+      // Dataverse, which Dataverse computes live per row and is
+      // significantly more expensive to read than a plain stored field).
+      // Splitting it out means the normal table load stays exactly as fast
+      // as before, and this extra cost is only paid when the person
+      // actually clicks "Show Actual".
+      async function fetchActualAmountsInto(rows, year, region) {
+        if (typeof XrmObj === "undefined" || !XrmObj || !XrmObj.WebApi)
+          return;
+        if (!rows || rows.length === 0) return;
+
+        var rowsByBu = {};
+        rows.forEach(function (r) {
+          rowsByBu[r.entity] = r;
+        });
+
+        var regionCode = region === "Egypt" ? 922190001 : 922190000;
+        var filter =
+          "?$filter=cfm_year eq '" +
+          year +
+          "' and cfm_region eq " +
+          regionCode +
+          "&$select=cfm_month,cfm_bu,cfm_actualamount";
+
+        try {
+          var res = await XrmObj.WebApi.retrieveMultipleRecords(
+            "cfm_requestbudget",
+            filter,
+          );
+          (res.entities || []).forEach(function (r) {
+            var row = rowsByBu[r["cfm_bu"]];
+            if (!row) return;
+            var m = parseInt(r.cfm_month, 10);
+            if (!isNaN(m) && m >= 1 && m <= 12) {
+              row.actuals[m - 1] =
+                r.cfm_actualamount != null ? r.cfm_actualamount : null;
+            }
+          });
+        } catch (e) {
+          console.error("fetchActualAmountsInto error:", e);
+          toast(
+            "Error",
+            "Could not load Actual Amount data.",
+            "alert",
+          );
+        }
+      }
+
       async function fetchBudgetRequests(year, region) {
         var buNames = getBUNamesForRegion(region);
         var rowsMap = {};
@@ -14519,6 +16135,23 @@
             entity: bu,
             guid: "",
             months: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            // Actual Amount (cfm_actualamount) — read-only, populated
+            // externally (from an outside table/process), never written by
+            // this app. null = not yet populated for that month.
+            actuals: [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
             monthExists: [
               false,
               false,
@@ -14587,7 +16220,7 @@
         return Object.values(rowsMap);
       }
 
-      function generateBudgetTableHTML(rows, isEditable) {
+      function generateBudgetTableHTML(rows, isEditable, showActual) {
         var months = [
           "Jan",
           "Feb",
@@ -14673,6 +16306,33 @@
                 (val === 0 ? "—" : val.toLocaleString()) +
                 "</span>";
             }
+            // Actual Amount (cfm_actualamount) — read-only always, shown
+            // under the Amount value/input when the "Show Actual" toggle is
+            // on. Populated externally (outside this app); never editable,
+            // never included in Export/Import. Flagged in red (with a
+            // warning icon) whenever Actual exceeds the Amount for that
+            // same month — an over-budget signal.
+            if (showActual) {
+              var actualVal = r.actuals ? r.actuals[mIdx] : null;
+              var isOverBudget =
+                actualVal !== null &&
+                actualVal !== undefined &&
+                Number(actualVal) > Number(val || 0);
+              html +=
+                '<div style="margin-top: 4px; font: ' +
+                (isOverBudget ? "700" : "500") +
+                ' 9.5px var(--mono); color: ' +
+                (isOverBudget ? "var(--danger)" : "var(--info)") +
+                ';">' +
+                (isOverBudget
+                  ? '<i class="fa-solid fa-triangle-exclamation" style="font-size:8px;margin-right:2px"></i>'
+                  : "") +
+                "Actual: " +
+                (actualVal === null || actualVal === undefined
+                  ? "—"
+                  : Number(actualVal).toLocaleString()) +
+                "</div>";
+            }
             html += "</td>";
           });
 
@@ -14747,6 +16407,8 @@
         // state from a previous session in the same browser tab.
         if (typeof showPage === "function") showPage("cfs");
         initSidebarState();
+        clearDesktopCollapseOnNarrowWidth();
+        promptGlobalRegionIfNeeded();
         await detectTaskLookupField();
         await loadCurrentUser();
         await loadData();
@@ -14988,6 +16650,13 @@
         var supBtn = document.getElementById("sb-ap-supervision");
         if (supBtn && screenId === "ap-supervision") {
           supBtn.classList.add("active");
+          if (!_apSupervisionGroupInitialized) {
+            var apGroupSelEl = document.getElementById("ap-group-filter");
+            if (apGroupSelEl && window.globalRegion) {
+              apGroupSelEl.value = regionToGroupCode(window.globalRegion);
+            }
+            _apSupervisionGroupInitialized = true;
+          }
           // Ensure the BU chips (and aging data) are populated as soon as this
           // screen is shown, instead of relying only on the one-time startup
           // bootstrap — that bootstrap can run before XrmObj is ready or before
@@ -15001,7 +16670,7 @@
           var yrElAP = document.getElementById("ap-req-filter-year");
           var rgElAP = document.getElementById("ap-req-filter-region");
           if (!_budgetFiltersInitialized) {
-            if (rgElAP) rgElAP.value = "Egypt";
+            if (rgElAP) rgElAP.value = window.globalRegion || "Egypt";
             _budgetFiltersInitialized = true;
           }
           if (typeof populateBudgetYearDropdowns === "function") {
@@ -15038,7 +16707,7 @@
           var yrElT = document.getElementById("treasury-filter-year");
           var rgElT = document.getElementById("treasury-filter-region");
           if (!_treasuryFiltersInitialized) {
-            if (rgElT) rgElT.value = "Egypt";
+            if (rgElT) rgElT.value = window.globalRegion || "Egypt";
             _treasuryFiltersInitialized = true;
           }
           if (typeof populateBudgetYearDropdowns === "function") {
@@ -15633,7 +17302,24 @@
         window.currentPPTreasuryFilter = treasuryFilterVal;
         window.currentPPBuFilter = buFilterVal;
         window.currentPPSearch = searchVal;
+        // Region — driven entirely by the Global Region selector in the
+        // navbar. Payment Plan (AP View) has no local region dropdown of
+        // its own; a line is only shown if its BU belongs to the
+        // currently-selected global region (Egypt: AMH/ASH/SMH, KSA:
+        // everything else — see getBUNamesForRegion()).
+        var regionBUs = window.globalRegion
+          ? getBUNamesForRegion(window.globalRegion)
+          : null;
+        var regionBadgeTextEl = document.getElementById(
+          "pp-ap-region-badge-text",
+        );
+        if (regionBadgeTextEl) {
+          regionBadgeTextEl.textContent = window.globalRegion
+            ? regionToGroupCode(window.globalRegion)
+            : "—";
+        }
         var rows = ppLines.filter(function (r) {
+          if (regionBUs && regionBUs.indexOf(r.bu) === -1) return false;
           if (filterVal !== "all") {
             if (r.status.toString() !== filterVal) return false;
           }
@@ -15710,7 +17396,7 @@
           html +=
             '<div data-pp-id="' +
             r.id +
-            '" style="display:grid;grid-template-columns:40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr 120px;border-bottom:1px solid var(--border);background:' +
+            '" style="display:grid;grid-template-columns:40px 130px 110px 1.15fr 70px 130px 165px 130px 1.2fr 140px 1.1fr 160px;border-bottom:1px solid var(--border);background:' +
             rowBg +
             ';cursor:pointer;transition:background .15s;align-items:center" ' +
             "onmouseover=\"this.style.background='var(--surface-hover)'\" onmouseout=\"this.style.background=isPPSelected('" +
@@ -16500,7 +18186,7 @@
             ppDRow(
               "Response Date &amp; Time",
               '<span style="font:700 12px var(--sans);color:var(--brand-black)">' +
-                sc.responseDateTime +
+                sc.createdOnDisplay +
                 "</span>",
               true,
             );
@@ -16739,6 +18425,12 @@
                 ${Array.from(
                   new Set(
                     ppLines
+                      .filter(function (r) {
+                        var regionBUs = window.globalRegion
+                          ? getBUNamesForRegion(window.globalRegion)
+                          : null;
+                        return !regionBUs || regionBUs.indexOf(r.bu) !== -1;
+                      })
                       .map(function (r) {
                         return r.bu;
                       })
@@ -17498,27 +19190,46 @@
         var tbody = document.getElementById("sla-config-tbody");
         if (tbody) {
           tbody.innerHTML =
-            '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">Loading...</td></tr>';
+            '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted);">Loading...</td></tr>';
         }
 
         if (typeof XrmObj === "undefined" || !XrmObj || !XrmObj.WebApi) {
           if (tbody) {
             tbody.innerHTML =
-              '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No data available</td></tr>';
+              '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted);">No data available</td></tr>';
           }
           return;
         }
 
         try {
+          var mgr1Nav = await resolveSlaManagerBindProperty(
+            "cfm_managerofdepartment1",
+          );
+          var mgr2Nav = await resolveSlaManagerBindProperty(
+            "cfm_managerofdepartment2",
+          );
+
+          var selectFields =
+            "cfm_slaid,cfm_action,cfm_slatype,cfm_slanoofhoursordate,cfm_escalationrule,cfm_deduction,statuscode,cfm_department1,cfm_department2";
+          var expandParts = ["cfm_Responsible($select=fullname,systemuserid)"];
+          if (mgr1Nav)
+            expandParts.push(mgr1Nav + "($select=fullname,systemuserid)");
+          if (mgr2Nav)
+            expandParts.push(mgr2Nav + "($select=fullname,systemuserid)");
+
           var res = await XrmObj.WebApi.retrieveMultipleRecords(
             "cfm_sla",
-            "?$select=cfm_slaid,cfm_action,cfm_slatype,cfm_slanoofhoursordate,cfm_escalationrule,cfm_deduction,statuscode" +
-              "&$expand=cfm_Responsible($select=fullname,systemuserid)" +
+            "?$select=" +
+              selectFields +
+              "&$expand=" +
+              expandParts.join(",") +
               "&$orderby=cfm_action asc",
           );
 
           slaConfigList = (res.entities || []).map(function (r) {
             var resp = r.cfm_Responsible || {};
+            var mgr1 = (mgr1Nav && r[mgr1Nav]) || {};
+            var mgr2 = (mgr2Nav && r[mgr2Nav]) || {};
             return {
               id: r.cfm_slaid,
               action: r.cfm_action || "-",
@@ -17529,6 +19240,12 @@
               deduction: r.cfm_deduction || "",
               responsibleId: resp.systemuserid || "",
               responsibleName: resp.fullname || "-",
+              department1: r.cfm_department1 || "-",
+              department2: r.cfm_department2 || "-",
+              manager1Id: mgr1.systemuserid || "",
+              manager1Name: mgr1.fullname || "-",
+              manager2Id: mgr2.systemuserid || "",
+              manager2Name: mgr2.fullname || "-",
               active: r.statuscode === 1,
             };
           });
@@ -17538,7 +19255,7 @@
           console.error("Failed to load cfm_sla records:", e);
           if (tbody) {
             tbody.innerHTML =
-              '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--danger);">Failed to load SLA rules</td></tr>';
+              '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--danger);">Failed to load SLA rules</td></tr>';
           }
         }
       }
@@ -17547,17 +19264,47 @@
         var tbody = document.getElementById("sla-config-tbody");
         if (!tbody) return;
 
+        var searchEl = document.getElementById("sla-config-search");
+        var searchVal = searchEl ? searchEl.value.toLowerCase().trim() : "";
+        var typeEl = document.getElementById("sla-config-type-filter");
+        var typeVal = typeEl ? typeEl.value : "all";
+
+        var rows = slaConfigList.filter(function (r) {
+          if (typeVal !== "all" && String(r.slaType) !== typeVal) return false;
+          if (searchVal) {
+            var combined = (
+              r.action +
+              " " +
+              r.escalationRule +
+              " " +
+              r.responsibleName +
+              " " +
+              r.department1 +
+              " " +
+              r.manager1Name +
+              " " +
+              r.department2 +
+              " " +
+              r.manager2Name
+            ).toLowerCase();
+            if (combined.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
         if (slaConfigList.length === 0) {
           tbody.innerHTML =
-            '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No SLA rules configured yet. Click "Add SLA Rule" to create one.</td></tr>';
+            '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted);">No SLA rules configured yet. Click "Add SLA Rule" to create one.</td></tr>';
+          return;
+        }
+        if (rows.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted);">No SLA rules match the current filters.</td></tr>';
           return;
         }
 
         var html = "";
-        slaConfigList.forEach(function (r) {
-          var statusBadge = r.active
-            ? '<span class="badge b-live"><span class="bdot"></span>Active</span>'
-            : '<span class="badge" style="background:var(--surface-hover);color:var(--muted);">Inactive</span>';
+        rows.forEach(function (r) {
           var safeAction = String(r.action).replace(/'/g, "\\'");
 
           html += "<tr>";
@@ -17581,24 +19328,61 @@
             '<td style="padding:10px 14px;font:400 12px var(--body);">' +
             r.responsibleName +
             "</td>";
-          html += '<td style="padding:10px 14px;">' + statusBadge + "</td>";
+          html +=
+            '<td style="padding:10px 14px;font:400 12px var(--body);">' +
+            r.department1 +
+            "</td>";
+          html +=
+            '<td style="padding:10px 14px;font:400 12px var(--body);">' +
+            r.manager1Name +
+            "</td>";
+          html +=
+            '<td style="padding:10px 14px;font:400 12px var(--body);">' +
+            r.department2 +
+            "</td>";
+          html +=
+            '<td style="padding:10px 14px;font:400 12px var(--body);">' +
+            r.manager2Name +
+            "</td>";
           html +=
             '<td style="padding:10px 14px;text-align:right;white-space:nowrap;">' +
             '<button class="btn btn-outline" style="padding:5px 10px;font-size:11px;" onclick="openSlaConfigModal(\'' +
             r.id +
             "')\">Edit</button> " +
-            '<button class="btn btn-outline" style="padding:5px 10px;font-size:11px;" onclick="toggleSlaConfigStatus(\'' +
+            '<button class="btn btn-outline btn-outline-danger" style="padding:5px 10px;font-size:11px;color:var(--danger);border-color:rgba(178,58,58,0.25);" onclick="deleteSlaConfig(\'' +
             r.id +
-            "', " +
-            !r.active +
-            ')">' +
-            (r.active ? "Deactivate" : "Activate") +
-            "</button>" +
+            "')\">Delete</button>" +
             "</td>";
           html += "</tr>";
         });
 
         tbody.innerHTML = html;
+      }
+
+      function onSlaTypeChange() {
+        var typeEl = document.getElementById("sla-config-type");
+        var valueEl = document.getElementById("sla-config-value");
+        var labelEl = document.getElementById("sla-config-value-label");
+        if (!typeEl || !valueEl) return;
+
+        if (typeEl.value === "766340001") {
+          // Date — switch to a real date picker. If the current value
+          // isn't already a valid yyyy-mm-dd string (e.g. it still holds
+          // an "Hours" value like "24"), clear it rather than feeding the
+          // date input an invalid value.
+          var currentVal = valueEl.value;
+          if (currentVal && !/^\d{4}-\d{2}-\d{2}$/.test(currentVal)) {
+            valueEl.value = "";
+          }
+          valueEl.type = "date";
+          valueEl.removeAttribute("placeholder");
+          if (labelEl) labelEl.textContent = "SLA (Date)";
+        } else {
+          // Hours — plain text/number entry.
+          valueEl.type = "text";
+          valueEl.setAttribute("placeholder", "e.g. 24");
+          if (labelEl) labelEl.textContent = "SLA (No. of Hours)";
+        }
       }
 
       function openSlaConfigModal(id) {
@@ -17607,13 +19391,24 @@
         document.getElementById("sla-config-id").value = "";
         document.getElementById("sla-config-action").value = "";
         document.getElementById("sla-config-type").value = "766340000";
-        document.getElementById("sla-config-value").value = "";
+        var slaValueEl = document.getElementById("sla-config-value");
+        slaValueEl.type = "text";
+        slaValueEl.value = "";
+        slaValueEl.setAttribute("placeholder", "e.g. 24");
         document.getElementById("sla-config-escalation").value = "";
         document.getElementById("sla-config-responsible-search").value = "";
         document.getElementById("sla-config-responsible-id").value = "";
         document.getElementById("sla-config-deduction").value = "";
+        document.getElementById("sla-config-department1").value = "";
+        document.getElementById("sla-config-mgr1-search").value = "";
+        document.getElementById("sla-config-mgr1-id").value = "";
+        document.getElementById("sla-config-department2").value = "";
+        document.getElementById("sla-config-mgr2-search").value = "";
+        document.getElementById("sla-config-mgr2-id").value = "";
         _slaResponsibleSelectedId = "";
         _slaResponsibleSelectedName = "";
+        _slaUserLookupState["sla-config-mgr1"] = {};
+        _slaUserLookupState["sla-config-mgr2"] = {};
 
         if (id) {
           var rec = slaConfigList.find(function (x) {
@@ -17632,6 +19427,10 @@
               rec.escalationRule === "-" ? "" : rec.escalationRule;
             document.getElementById("sla-config-deduction").value =
               rec.deduction || "";
+            document.getElementById("sla-config-department1").value =
+              rec.department1 === "-" ? "" : rec.department1;
+            document.getElementById("sla-config-department2").value =
+              rec.department2 === "-" ? "" : rec.department2;
             if (rec.responsibleId) {
               document.getElementById("sla-config-responsible-search").value =
                 rec.responsibleName;
@@ -17640,11 +19439,32 @@
               _slaResponsibleSelectedId = rec.responsibleId;
               _slaResponsibleSelectedName = rec.responsibleName;
             }
+            if (rec.manager1Id) {
+              document.getElementById("sla-config-mgr1-search").value =
+                rec.manager1Name;
+              document.getElementById("sla-config-mgr1-id").value =
+                rec.manager1Id;
+              _slaUserLookupState["sla-config-mgr1"] = {
+                selectedId: rec.manager1Id,
+                selectedName: rec.manager1Name,
+              };
+            }
+            if (rec.manager2Id) {
+              document.getElementById("sla-config-mgr2-search").value =
+                rec.manager2Name;
+              document.getElementById("sla-config-mgr2-id").value =
+                rec.manager2Id;
+              _slaUserLookupState["sla-config-mgr2"] = {
+                selectedId: rec.manager2Id,
+                selectedName: rec.manager2Name,
+              };
+            }
           }
         } else {
           if (titleEl) titleEl.textContent = "Add SLA Rule";
         }
 
+        onSlaTypeChange();
         openModal("modal-sla-config");
       }
 
@@ -17766,6 +19586,14 @@
         var responsibleId = document.getElementById(
           "sla-config-responsible-id",
         ).value;
+        var department1 = (
+          document.getElementById("sla-config-department1").value || ""
+        ).trim();
+        var department2 = (
+          document.getElementById("sla-config-department2").value || ""
+        ).trim();
+        var mgr1Id = document.getElementById("sla-config-mgr1-id").value;
+        var mgr2Id = document.getElementById("sla-config-mgr2-id").value;
 
         if (!action) {
           toast("Required", "Please enter the Action name.", "alert");
@@ -17786,6 +19614,8 @@
           cfm_slanoofhoursordate: value,
           cfm_escalationrule: escalationRule,
           cfm_deduction: deduction,
+          cfm_department1: department1,
+          cfm_department2: department2,
         };
 
         if (responsibleId) {
@@ -17796,6 +19626,40 @@
         if (typeof XrmObj === "undefined" || !XrmObj || !XrmObj.WebApi) {
           toast("Error", "Dataverse connection is not available.", "alert");
           return;
+        }
+
+        // Resolve the real @odata.bind navigation-property names for the
+        // two manager lookups from Dataverse metadata (never guessed —
+        // see resolveSlaManagerBindProperty()).
+        if (mgr1Id) {
+          var mgr1Nav = await resolveSlaManagerBindProperty(
+            "cfm_managerofdepartment1",
+          );
+          if (mgr1Nav) {
+            recordData[mgr1Nav + "@odata.bind"] =
+              "/systemusers(" + mgr1Id + ")";
+          } else {
+            toast(
+              "Warning",
+              "Could not resolve the Manager of Department 1 field — it was not saved.",
+              "alert",
+            );
+          }
+        }
+        if (mgr2Id) {
+          var mgr2Nav = await resolveSlaManagerBindProperty(
+            "cfm_managerofdepartment2",
+          );
+          if (mgr2Nav) {
+            recordData[mgr2Nav + "@odata.bind"] =
+              "/systemusers(" + mgr2Id + ")";
+          } else {
+            toast(
+              "Warning",
+              "Could not resolve the Manager of Department 2 field — it was not saved.",
+              "alert",
+            );
+          }
         }
 
         try {
@@ -17851,6 +19715,35 @@
           hideLoading();
           console.error("Failed to toggle cfm_sla status:", e);
           toast("Error", "Failed to update the SLA rule status.", "alert");
+        }
+      }
+
+      function deleteSlaConfig(id) {
+        showConfirmModal(
+          "Delete this SLA rule? This cannot be undone.",
+          function () {
+            proceedDeleteSlaConfig(id);
+          },
+          "Delete SLA Rule",
+          "Delete",
+        );
+      }
+
+      async function proceedDeleteSlaConfig(id) {
+        if (typeof XrmObj === "undefined" || !XrmObj || !XrmObj.WebApi) {
+          toast("Error", "Dataverse connection is not available.", "alert");
+          return;
+        }
+        try {
+          showLoading();
+          await XrmObj.WebApi.deleteRecord("cfm_sla", id);
+          await loadSlaConfigList();
+          hideLoading();
+          toast("Deleted", "SLA rule deleted.", "success");
+        } catch (e) {
+          hideLoading();
+          console.error("Failed to delete cfm_sla record:", e);
+          toast("Error", "Failed to delete the SLA rule.", "alert");
         }
       }
 
@@ -18287,6 +20180,202 @@
           return null;
         }
       }
+
+      // ── cfm_sla "Manager of Department 1/2" lookups (both -> systemuser) ──
+      // Same reasoning as resolveAmountHistoryPaymentPlanBindProperty()
+      // above: the real @odata.bind navigation-property name (SchemaName)
+      // can't be reliably guessed from the logical attribute name
+      // (cfm_managerofdepartment1 / cfm_managerofdepartment2) — it's
+      // resolved from actual Dataverse relationship metadata instead.
+      //
+      // Fetches the FULL, unfiltered list of cfm_sla's ManyToOne
+      // relationships once (cached) rather than filtering server-side by
+      // ReferencingAttribute — an exact-match $filter can silently return
+      // zero rows over a casing/spelling mismatch between what we assume
+      // the logical name is and what Dataverse actually has, with no error
+      // to explain why. Matching client-side against the full list, with a
+      // case-insensitive "contains" check, is far more forgiving and also
+      // lets us log every relationship candidate when nothing matches.
+      var _slaManagerBindPropertyCache = {};
+      var _slaAllRelationshipsCache = null;
+
+      async function getAllSlaManyToOneRelationships() {
+        if (_slaAllRelationshipsCache) return _slaAllRelationshipsCache;
+        var relRes = await dataverseMetadataGet(
+          "/EntityDefinitions(LogicalName='cfm_sla')/ManyToOneRelationships" +
+            "?$select=ReferencingEntityNavigationPropertyName,ReferencingAttribute,ReferencedEntity",
+        );
+        _slaAllRelationshipsCache = relRes.value || [];
+        console.log(
+          "[SLA Config] All cfm_sla ManyToOne relationships (for diagnosing lookup field names):",
+          _slaAllRelationshipsCache,
+        );
+        return _slaAllRelationshipsCache;
+      }
+
+      async function resolveSlaManagerBindProperty(attributeLogicalName) {
+        if (_slaManagerBindPropertyCache[attributeLogicalName]) {
+          return _slaManagerBindPropertyCache[attributeLogicalName];
+        }
+        try {
+          var allRels = await getAllSlaManyToOneRelationships();
+
+          // 1) Exact match on ReferencingAttribute (case-insensitive).
+          var match = allRels.find(function (rel) {
+            return (
+              (rel.ReferencingAttribute || "").toLowerCase() ===
+              attributeLogicalName.toLowerCase()
+            );
+          });
+
+          // 2) Fallback: any systemuser-lookup whose attribute name
+          // *contains* "department1" / "department2" (handles a
+          // near-miss like a different prefix/suffix than we assumed).
+          if (!match) {
+            var deptNum = attributeLogicalName.match(/department(\d)/i);
+            var deptSuffix = deptNum ? "department" + deptNum[1] : null;
+            match = allRels.find(function (rel) {
+              var attr = (rel.ReferencingAttribute || "").toLowerCase();
+              var refEntity = (rel.ReferencedEntity || "").toLowerCase();
+              return (
+                refEntity === "systemuser" &&
+                deptSuffix &&
+                attr.indexOf(deptSuffix) !== -1
+              );
+            });
+          }
+
+          if (!match || !match.ReferencingEntityNavigationPropertyName) {
+            console.error(
+              "[SLA Config] Could not find the lookup relationship for '" +
+                attributeLogicalName +
+                "' on cfm_sla. Full relationship list logged above (getAllSlaManyToOneRelationships) — " +
+                "check ReferencingAttribute values there for the real logical name.",
+            );
+            return null;
+          }
+          _slaManagerBindPropertyCache[attributeLogicalName] =
+            match.ReferencingEntityNavigationPropertyName;
+          console.log(
+            "[SLA Config] Resolved nav property for " +
+              attributeLogicalName +
+              ":",
+            match.ReferencingEntityNavigationPropertyName,
+          );
+          return match.ReferencingEntityNavigationPropertyName;
+        } catch (e) {
+          console.error(
+            "resolveSlaManagerBindProperty error for " +
+              attributeLogicalName +
+              ":",
+            e,
+          );
+          return null;
+        }
+      }
+
+      // ── Generic user-search-lookup helpers, reused for both Manager of
+      // Department 1 and Manager of Department 2 fields in the SLA Config
+      // modal (same UX pattern already used for "Responsible"). ──
+      var _slaUserLookupState = {};
+
+      function onSlaUserLookupInput(fieldPrefix) {
+        var input = document.getElementById(fieldPrefix + "-search");
+        var term = (input.value || "").trim();
+        if (!_slaUserLookupState[fieldPrefix]) _slaUserLookupState[fieldPrefix] = {};
+        _slaUserLookupState[fieldPrefix].selectedId = "";
+        var idEl = document.getElementById(fieldPrefix + "-id");
+        if (idEl) idEl.value = "";
+
+        var results = document.getElementById(fieldPrefix + "-results");
+        if (term.length < 2) {
+          if (results) results.classList.remove("visible");
+          return;
+        }
+        clearTimeout(_slaUserLookupState[fieldPrefix].debounceTimer);
+        _slaUserLookupState[fieldPrefix].debounceTimer = setTimeout(
+          function () {
+            searchSlaUserLookup(fieldPrefix, term);
+          },
+          300,
+        );
+      }
+
+      async function searchSlaUserLookup(fieldPrefix, term) {
+        var results = [];
+        try {
+          if (typeof XrmObj !== "undefined" && XrmObj && XrmObj.WebApi) {
+            var filter =
+              "contains(fullname,'" + term.replace(/'/g, "''") + "')";
+            var res = await XrmObj.WebApi.retrieveMultipleRecords(
+              "systemuser",
+              "?$select=fullname,systemuserid&$filter=" + filter + "&$top=10",
+            );
+            results = res.entities.map(function (u) {
+              return { id: u.systemuserid, fullname: u.fullname };
+            });
+          }
+        } catch (e) {
+          console.warn("SLA user lookup error (" + fieldPrefix + "):", e);
+        }
+        renderSlaUserLookupResults(fieldPrefix, results);
+      }
+
+      function renderSlaUserLookupResults(fieldPrefix, users) {
+        var container = document.getElementById(fieldPrefix + "-results");
+        if (!container) return;
+        if (users.length === 0) {
+          container.innerHTML =
+            '<div style="padding:8px 12px;color:var(--dim)">No users found</div>';
+          container.classList.add("visible");
+          return;
+        }
+        var html = "";
+        users.forEach(function (u) {
+          var safeName = u.fullname
+            .replace(/'/g, "\\'")
+            .replace(/"/g, "&quot;");
+          var initials = getInitials(u.fullname);
+          html +=
+            '<div class="user-lookup-item" onclick="selectSlaUserLookup(\'' +
+            fieldPrefix +
+            "', '" +
+            u.id +
+            "', '" +
+            safeName +
+            "')\">";
+          html += '  <span class="lookup-avatar">' + initials + "</span>";
+          html += "  <span>" + u.fullname + "</span>";
+          html += "</div>";
+        });
+        container.innerHTML = html;
+        container.classList.add("visible");
+      }
+
+      function selectSlaUserLookup(fieldPrefix, id, name) {
+        if (!_slaUserLookupState[fieldPrefix]) _slaUserLookupState[fieldPrefix] = {};
+        _slaUserLookupState[fieldPrefix].selectedId = id;
+        _slaUserLookupState[fieldPrefix].selectedName = name;
+        var searchEl = document.getElementById(fieldPrefix + "-search");
+        if (searchEl) searchEl.value = name;
+        var idEl = document.getElementById(fieldPrefix + "-id");
+        if (idEl) idEl.value = id;
+        var container = document.getElementById(fieldPrefix + "-results");
+        if (container) container.classList.remove("visible");
+      }
+
+      document.addEventListener("click", function (e) {
+        ["sla-config-mgr1", "sla-config-mgr2"].forEach(function (fieldPrefix) {
+          if (
+            e.target &&
+            !e.target.closest("#" + fieldPrefix + "-search") &&
+            !e.target.closest("#" + fieldPrefix + "-results")
+          ) {
+            var c = document.getElementById(fieldPrefix + "-results");
+            if (c) c.classList.remove("visible");
+          }
+        });
+      });
 
       async function amountHistoryRetrieveMultiple(query) {
         try {
@@ -19500,7 +21589,7 @@
           html +=
             '<div data-pp-id="' +
             r.id +
-            '" style="display:grid;grid-template-columns:40px 130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 120px;border-bottom:1px solid var(--border);background:' +
+            '" style="display:grid;grid-template-columns:40px 130px 110px 1.2fr 70px 115px 145px 110px 1.3fr 140px 1.1fr 160px;border-bottom:1px solid var(--border);background:' +
             rowBg +
             ';cursor:pointer;transition:background .15s;align-items:center" ' +
             "onmouseover=\"this.style.background='rgba(165,132,91,0.04)'\" " +
@@ -19551,13 +21640,13 @@
             (r.notes || "—") +
             "</div>" +
             '<div style="padding:14px 16px">' +
-            (r.currentStage ? ppStageBadge(r.currentStage) : "—") +
+            (r.treasuryDecision ? ppDecisionBadge(r.treasuryDecision) : "—") +
             "</div>" +
             '<div style="padding:14px 16px;font:400 11.5px var(--body);color:var(--muted);line-height:1.4">' +
             (r.lastComment || "—") +
             "</div>" +
             '<div style="padding:14px 16px">' +
-            (r.treasuryDecision ? ppDecisionBadge(r.treasuryDecision) : "—") +
+            (r.currentStage ? ppStageBadge(r.currentStage) : "—") +
             "</div>" +
             "</div>";
         });
@@ -20746,15 +22835,19 @@
 
           <div class="form-field">
             <label class="field-lbl" for="sla-config-type">SLA Type</label>
-            <select class="field-input" id="sla-config-type">
+            <select
+              class="field-input"
+              id="sla-config-type"
+              onchange="onSlaTypeChange()"
+            >
               <option value="766340000">Hours</option>
               <option value="766340001">Date</option>
             </select>
           </div>
 
           <div class="form-field">
-            <label class="field-lbl" for="sla-config-value"
-              >SLA (No. of Hours or Date)</label
+            <label class="field-lbl" for="sla-config-value" id="sla-config-value-label"
+              >SLA (No. of Hours)</label
             >
             <input
               type="text"
@@ -20791,6 +22884,68 @@
             <input type="hidden" id="sla-config-responsible-id" value="" />
             <div
               id="sla-config-responsible-results"
+              class="user-lookup-results"
+            ></div>
+          </div>
+
+          <div class="form-field">
+            <label class="field-lbl" for="sla-config-department1"
+              >Department 1</label
+            >
+            <input
+              type="text"
+              class="field-input"
+              id="sla-config-department1"
+              placeholder="e.g. Treasury"
+            />
+          </div>
+
+          <div class="form-field" style="position: relative">
+            <label class="field-lbl" for="sla-config-mgr1-search"
+              >Manager of Department 1</label
+            >
+            <input
+              type="text"
+              class="field-input"
+              id="sla-config-mgr1-search"
+              placeholder="Search user..."
+              autocomplete="off"
+              oninput="onSlaUserLookupInput('sla-config-mgr1')"
+            />
+            <input type="hidden" id="sla-config-mgr1-id" value="" />
+            <div
+              id="sla-config-mgr1-results"
+              class="user-lookup-results"
+            ></div>
+          </div>
+
+          <div class="form-field">
+            <label class="field-lbl" for="sla-config-department2"
+              >Department 2</label
+            >
+            <input
+              type="text"
+              class="field-input"
+              id="sla-config-department2"
+              placeholder="e.g. AP"
+            />
+          </div>
+
+          <div class="form-field" style="position: relative">
+            <label class="field-lbl" for="sla-config-mgr2-search"
+              >Manager of Department 2</label
+            >
+            <input
+              type="text"
+              class="field-input"
+              id="sla-config-mgr2-search"
+              placeholder="Search user..."
+              autocomplete="off"
+              oninput="onSlaUserLookupInput('sla-config-mgr2')"
+            />
+            <input type="hidden" id="sla-config-mgr2-id" value="" />
+            <div
+              id="sla-config-mgr2-results"
               class="user-lookup-results"
             ></div>
           </div>

@@ -16,6 +16,7 @@ import {
   formatScDisplayDateTime,
 } from "../lib/scPriorityService";
 import { useToast } from "../lib/ToastContext";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
 import "../styles/CashFlowStatement.css";
 
 /** Comma-grouped display — mirrors r.currentAmount.toLocaleString(). */
@@ -262,6 +263,32 @@ export default function PaymentPlanSCTab() {
     }
   }
 
+  // ── Export — mirrors exportPaymentPlanSCXLS() ──
+  function handleExport() {
+    const headers = [
+      "Category", "Sub Ledger Code", "Vendor Name", "BU", "Initial Amount",
+      "Amount", "Due Date", "AP Notes", "Treasury Status", "Treasury Comment", "STATUS",
+    ];
+    const exportRows = filteredLines.map((r) => [
+      r.category || "-",
+      r.code || "-",
+      r.vendor || "-",
+      r.bu || "-",
+      r.plannedAmount != null ? Number(r.plannedAmount) : "",
+      r.currentAmount != null ? Number(r.currentAmount) : "",
+      r.due || "-",
+      r.notes || "-",
+      r.treasuryDecision || "-",
+      r.lastComment || "-",
+      r.currentStage || "-",
+    ]);
+    if (!exportRowsToXLS(`Payment_Plan_SC_${exportFilenameStamp()}`, headers, exportRows)) {
+      showToast("Nothing to Export", "No rows match the current filters.", "alert");
+      return;
+    }
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
+
   async function handleReturnToAP() {
     if (!isValidAction) return;
     const ids = Array.from(selected);
@@ -411,9 +438,14 @@ async function openScPriorityModal(row: PPLine) {
               Scheduled vendor payments · Supply Chain view · Cash-flow alignment
             </div>
           </div>
-          <button className="btn btn-outline" onClick={loadLines}>
-            Refresh Data
-          </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="btn btn-outline" onClick={loadLines}>
+              Refresh Data
+            </button>
+            <button className="btn btn-outline" onClick={handleExport}>
+              Export
+            </button>
+          </div>
         </div>
 
         {/* ── TOOLBAR ── */}

@@ -14,6 +14,7 @@ import {
 } from "../lib/apPaymentPlanService";
 import type { PPLine } from "../types/apPaymentPlan";
 import { useToast } from "../lib/ToastContext";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
 import "../styles/CashFlowStatement.css";
 import TreasuryBudgetPanel from "./TreasuryBudgetPanel";
 
@@ -194,6 +195,32 @@ export default function TreasuryTab() {
     setEditComment("");
   }
 
+  // ── Export — mirrors exportTreasuryWorkflowXLS() ──
+  function handleExport() {
+    const headers = [
+      "Category", "Sub Ledger Code", "Vendor Name", "BU", "Initial Amount",
+      "Amount", "Due Date", "AP Notes", "Treasury Status", "Treasury Comment", "STATUS",
+    ];
+    const exportRows = filteredLines.map((r) => [
+      r.category || "-",
+      r.code || "-",
+      r.vendor || "-",
+      r.bu || "-",
+      r.plannedAmount != null ? Number(r.plannedAmount) : "",
+      r.currentAmount != null ? Number(r.currentAmount) : "",
+      r.due || "-",
+      r.notes || "-",
+      r.treasuryDecision || "-",
+      r.lastComment || "-",
+      r.currentStage || "-",
+    ]);
+    if (!exportRowsToXLS(`Treasury_Workflow_${exportFilenameStamp()}`, headers, exportRows)) {
+      showToast("Nothing to Export", "No rows match the current filters.", "alert");
+      return;
+    }
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
+
   async function handleSave() {
     if (!editRow) return;
     if (!editStatus) {
@@ -243,9 +270,14 @@ export default function TreasuryTab() {
               Treasury Workflow
             </div>
           </div>
-       <button className="btn btn-outline" onClick={loadLines}>
-            Refresh Data
-          </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="btn btn-outline" onClick={loadLines}>
+              Refresh Data
+            </button>
+            <button className="btn btn-outline" onClick={handleExport}>
+              Export PP
+            </button>
+          </div>
         </div>
 
         <TreasuryBudgetPanel />

@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   buildBudgetGrid,
+  fetchActualAmountsByBuMonth,
   fetchBudgetRequests,
   getBUNamesForRegion,
 } from "../lib/apBudgetRequestService";
-import type { BudgetGrid, BudgetRegion } from "../types/apBudgetRequest";
+import type { BudgetGrid, BudgetRegion, MonthKey } from "../types/apBudgetRequest";
 import { MONTH_KEYS } from "../types/apBudgetRequest";
 import BudgetRequestModal from "./Budgetrequestmodal";
 import { useToast } from "../lib/ToastContext";
+import { useGlobalRegion } from "../lib/GlobalRegionContext";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
 
 const YEAR_OPTIONS = ["2024", "2025", "2026", "2027"];
 
@@ -18,13 +21,43 @@ function fmt(v: number): string {
 }
 
 export default function BudgetRequestPanel() {
+  const { globalRegion } = useGlobalRegion();
   const [year, setYear] = useState("2026");
-  const [region, setRegion] = useState<BudgetRegion>("Egypt");
+  const [region, setRegion] = useState<BudgetRegion>(globalRegion || "Egypt");
+
+  // Follows the Global Region selector — mirrors applyGlobalRegionToCurrentScreen()
+  // re-applying it as the default for this screen whenever it changes.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (globalRegion) setRegion(globalRegion);
+  }, [globalRegion]);
   const [grid, setGrid] = useState<BudgetGrid | null>(null);
   const [loading, setLoading] = useState(false);
   const [noDataMessage, setNoDataMessage] = useState<string | null>(null);
   const [decisionOpen, setDecisionOpen] = useState(false);
+  const [showActual, setShowActual] = useState(false);
+  const [actualsLoading, setActualsLoading] = useState(false);
+  const [actuals, setActuals] = useState<Record<string, Partial<Record<MonthKey, number>>>>({});
   const { showToast } = useToast();
+
+  // ── "Show Actual" toggle — mirrors toggleAPShowActual(): lazily fetches
+  // cfm_actualamount the first time it's switched on for this Year/Region. ──
+  async function handleToggleShowActual() {
+    const next = !showActual;
+    setShowActual(next);
+    if (next && Object.keys(actuals).length === 0) {
+      setActualsLoading(true);
+      try {
+        const map = await fetchActualAmountsByBuMonth(year, region);
+        setActuals(map);
+      } catch (e) {
+        console.error("Error loading Actual Amount data:", e);
+        showToast("Error", "Could not load Actual Amount data.", "alert");
+      } finally {
+        setActualsLoading(false);
+      }
+    }
+  }
 
   function handleRequestBudgetClick() {
     if (!year) {
@@ -41,6 +74,8 @@ export default function BudgetRequestPanel() {
   const loadGrid = useCallback(async () => {
     if (!year || !region) return;
     setLoading(true);
+    setShowActual(false);
+    setActuals({});
     try {
       const rows = await fetchBudgetRequests(year, region);
       // mirrors budgetRowsHaveAnyData(): fetchBudgetRequests only returns a
@@ -67,6 +102,22 @@ export default function BudgetRequestPanel() {
     loadGrid();
   }, [loadGrid]);
 
+  // ── Export — mirrors exportAPBudgetXLS() ──
+  function handleExport() {
+    if (!grid) {
+      showToast("Nothing to Export", "Select a Year and Region with budget data first.", "alert");
+      return;
+    }
+    const headers = ["Entity", ...MONTH_KEYS.map((m) => m), "Total"];
+    const exportRows = grid.rows.map((row) => [
+      row.bu,
+      ...MONTH_KEYS.map((m) => row.amounts[m] || 0),
+      row.total,
+    ]);
+    exportRowsToXLS(`Budget_Request_AP_${region}_${year}_${exportFilenameStamp()}`, headers, exportRows);
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
+
   return (
     <div className="pp-panel" style={{ marginBottom: 20, overflow: "hidden" }}>
       {/* Header */}
@@ -90,13 +141,21 @@ export default function BudgetRequestPanel() {
             Request budget from Treasury via TMS. Approved adjustments will show below.
           </div>
         </div>
-        <button
-          className="btn btn-primary"
-          style={{ padding: "8px 18px" }}
-          onClick={handleRequestBudgetClick}
-        >
-          Request Budget
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button className="btn btn-outline" onClick={handleToggleShowActual} disabled={actualsLoading}>
+            {actualsLoading ? "Loading…" : showActual ? "Hide Actual" : "Show Actual"}
+          </button>
+          <button className="btn btn-outline" onClick={handleExport}>
+            Export
+          </button>
+          <button
+            className="btn btn-primary"
+            style={{ padding: "8px 18px" }}
+            onClick={handleRequestBudgetClick}
+          >
+            Request Budget
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -165,11 +224,27 @@ export default function BudgetRequestPanel() {
               {grid.rows.map((row) => (
                 <tr key={row.bu}>
                   <td className="budget-grid-td">{row.bu}</td>
-                  {MONTH_KEYS.map((m) => (
-                    <td key={m} className="budget-grid-td">
-                      {row.amounts[m] ? fmt(row.amounts[m]) : "-"}
-                    </td>
-                  ))}
+                  {MONTH_KEYS.map((m) => {
+                    const actualVal = actuals[row.bu]?.[m];
+                    const isOverBudget = actualVal != null && actualVal > (row.amounts[m] || 0);
+                    return (
+                      <td key={m} className="budget-grid-td">
+                        {row.amounts[m] ? fmt(row.amounts[m]) : "-"}
+                        {showActual && (
+                          <div
+                            style={{
+                              marginTop: 4,
+                              font: `${isOverBudget ? 700 : 500} 9.5px var(--mono)`,
+                              color: isOverBudget ? "var(--danger)" : "var(--info)",
+                            }}
+                          >
+                            {isOverBudget ? "⚠ " : ""}
+                            Actual: {actualVal == null ? "—" : fmt(actualVal)}
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
                   <td className="budget-grid-td budget-grid-total-td">
                     {fmt(row.total)}
                   </td>

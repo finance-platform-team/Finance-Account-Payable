@@ -165,3 +165,65 @@ export function getItemsForActivity(
     .sort()
     .map((cat) => ({ category: cat, amount: categoryMap[cat] }));
 }
+
+// Some categories are duplicated data: a bare "Visa" row and split
+// "Visa - Arab" / "Visa - NBE" rows that already sum up to exactly the same
+// amount as "Visa". Summing every row for Total In/Out would double-count
+// that money. Returns the set of bare parent category names (no " - " in
+// the name) that should be EXCLUDED from the total whenever at least one
+// "Parent - Child" sibling exists for it — mirrors
+// getBareParentCategoriesToExcludeFromTotal() in CFM_APNew.html.
+export function getBareParentCategoriesToExcludeFromTotal(
+  items: CFSLineItem[]
+): Record<string, boolean> {
+  const childPrefixes: Record<string, boolean> = {};
+  items.forEach((item) => {
+    const m = item.category.match(/^(.+?)\s*-\s*(.+)$/);
+    if (m) childPrefixes[m[1].trim()] = true;
+  });
+  const exclude: Record<string, boolean> = {};
+  items.forEach((item) => {
+    const m = item.category.match(/^(.+?)\s*-\s*(.+)$/);
+    if (!m && childPrefixes[item.category.trim()]) {
+      exclude[item.category] = true;
+    }
+  });
+  return exclude;
+}
+
+/** Operating/Investing/Financing nets from live category transactions. */
+export interface LiveActivityNets {
+  operating: number;
+  investing: number;
+  financing: number;
+}
+
+// Computes Net (Total In - Total Out) for each of the three activities
+// directly from the live cfm_cashflowcategory transactions — the same
+// source that drives the Money In/Out breakdown tables — instead of the
+// separate cfm_cashflownetmeasures aggregate fields, which are maintained
+// independently in Dataverse and aren't guaranteed to match the
+// transaction-level totals. Mirrors computeLiveActivityNets() in
+// CFM_APNew.html.
+export function computeLiveActivityNets(
+  transactions: CfmCashFlowCategory[]
+): LiveActivityNets {
+  const result: LiveActivityNets = { operating: 0, investing: 0, financing: 0 };
+  (["Operating", "Investing", "Financing"] as const).forEach((act) => {
+    const key = act.toLowerCase() as keyof LiveActivityNets;
+    const inItems = getItemsForActivity(transactions, `${act} Activities`, "Cash In");
+    const outItems = getItemsForActivity(transactions, `${act} Activities`, "Cash Out");
+    const excludeIn = getBareParentCategoriesToExcludeFromTotal(inItems);
+    const excludeOut = getBareParentCategoriesToExcludeFromTotal(outItems);
+    const inSum = inItems.reduce(
+      (acc, i) => (excludeIn[i.category] ? acc : acc + i.amount),
+      0
+    );
+    const outSum = outItems.reduce(
+      (acc, i) => (excludeOut[i.category] ? acc : acc + i.amount),
+      0
+    );
+    result[key] = inSum - outSum;
+  });
+  return result;
+}

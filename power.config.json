@@ -78,6 +78,14 @@
         "rolesecurities": {
           "entitySetName": "cfm_rolesecurities",
           "logicalName": "cfm_rolesecurity"
+        },
+        "slas": {
+          "entitySetName": "cfm_slas",
+          "logicalName": "cfm_sla"
+        },
+        "slatrackings": {
+          "entitySetName": "cfm_slatrackings",
+          "logicalName": "cfm_slatracking"
         }
       },
       "environmentVariableName": ""

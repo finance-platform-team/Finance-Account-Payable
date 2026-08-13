@@ -4,7 +4,7 @@
   "type": "Microsoft.PowerApps/apis",
   "properties": {
     "displayName": "Microsoft Dataverse",
-    "iconUri": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/commondataserviceforapps/icon.png",
+    "iconUri": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1820/1.0.1820.4809/commondataserviceforapps/icon.png",
     "iconBrandColor": "",
     "apiEnvironment": "Shared",
     "isCustomApi": false,
@@ -510,7 +510,7 @@
           "url": "https://make.powerautomate.com/en-us/support/"
         }
       },
-      "host": "4b95d697-1abb-e5d1-a5f6-a7f218bcbe49.14.common.europe002.azure-apihub.net",
+      "host": "9ce6fb09-5b63-e9f4-9185-b707b4b3425e.11.common.europe002.azure-apihub.net",
       "basePath": "/apim/commondataserviceforapps",
       "schemes": [
         "https"
@@ -8363,11 +8363,11 @@
                 "description": "Operation failed."
               }
             },
-            "deprecated": false,
+            "deprecated": true,
             "x-ms-visibility": "important",
             "x-ms-mcs-visibility": "featured",
             "externalDocs": {
-              "url": "https://docs.microsoft.com/connectors/commondataserviceforapps/#dynamics-365-erp-mcp-(deprecated)"
+              "url": "https://docs.microsoft.com/connectors/commondataserviceforapps/#dynamics-365-erp-mcp-(deprecated)-%5bdeprecated%5d"
             }
           }
         },
@@ -8420,11 +8420,11 @@
                 "description": "Operation failed."
               }
             },
-            "deprecated": false,
+            "deprecated": true,
             "x-ms-visibility": "important",
             "x-ms-mcs-visibility": "featured",
             "externalDocs": {
-              "url": "https://docs.microsoft.com/connectors/commondataserviceforapps/#dataverse-mcp-server-(deprecated)"
+              "url": "https://docs.microsoft.com/connectors/commondataserviceforapps/#dataverse-mcp-server-(deprecated)-%5bdeprecated%5d"
             }
           }
         },
@@ -9579,23 +9579,23 @@
       }
     },
     "runtimeUrls": [
-      "https://4b95d697-1abb-e5d1-a5f6-a7f218bcbe49.14.common.europe002.azure-apihub.net/apim/commondataserviceforapps"
+      "https://9ce6fb09-5b63-e9f4-9185-b707b4b3425e.11.common.europe002.azure-apihub.net/apim/commondataserviceforapps"
     ],
-    "primaryRuntimeUrl": "https://4b95d697-1abb-e5d1-a5f6-a7f218bcbe49.14.common.europe002.azure-apihub.net/apim/commondataserviceforapps",
-    "doNotUseApiHubNetRuntimeUrl": "https://4b95d697-1abb-e5d1-a5f6-a7f218bcbe49.14.common.europe002.azure-apihub.net/apim/commondataserviceforapps",
+    "primaryRuntimeUrl": "https://9ce6fb09-5b63-e9f4-9185-b707b4b3425e.11.common.europe002.azure-apihub.net/apim/commondataserviceforapps",
+    "doNotUseApiHubNetRuntimeUrl": "https://9ce6fb09-5b63-e9f4-9185-b707b4b3425e.11.common.europe002.azure-apihub.net/apim/commondataserviceforapps",
     "metadata": {
       "source": "marketplace",
       "brandColor": "",
       "useNewApimVersion": "true",
       "version": {
-        "previous": "releases/v1.0.1814\\1.0.1814.4760",
-        "current": "releases/v1.0.1819\\1.0.1819.4795"
+        "previous": "releases/v1.0.1819\\1.0.1819.4795",
+        "current": "releases/v1.0.1820\\1.0.1820.4809"
       },
       "OperationIcons": {
-        "mcp_ContactCenterMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/commondataserviceforapps/icon_mcp_ContactCenterMCPServer.png",
-        "mcp_ERPMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/commondataserviceforapps/icon_mcp_ERPMCPServer.png",
-        "mcp_SalesMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/commondataserviceforapps/icon_mcp_SalesMCPServer.png",
-        "mcp_ServiceMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/commondataserviceforapps/icon_mcp_ServiceMCPServer.png"
+        "mcp_ContactCenterMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1820/1.0.1820.4809/commondataserviceforapps/icon_mcp_ContactCenterMCPServer.png",
+        "mcp_ERPMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1820/1.0.1820.4809/commondataserviceforapps/icon_mcp_ERPMCPServer.png",
+        "mcp_SalesMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1820/1.0.1820.4809/commondataserviceforapps/icon_mcp_SalesMCPServer.png",
+        "mcp_ServiceMCPServer": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1820/1.0.1820.4809/commondataserviceforapps/icon_mcp_ServiceMCPServer.png"
       }
     },
     "capabilities": [
@@ -9605,7 +9605,7 @@
     "interfaces": {},
     "description": "Provides access to Microsoft Dataverse actions and triggers for Power Platform environments.",
     "createdTime": "2023-11-28T19:50:15.3220251Z",
-    "changedTime": "2026-07-13T16:43:14.2522065Z",
+    "changedTime": "2026-07-28T17:58:45.289124Z",
     "releaseTag": "Production",
     "tier": "Premium",
     "publisher": "Microsoft",

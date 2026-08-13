@@ -25,7 +25,7 @@ export interface BadgeStyle {
 export interface PPLine {
   id: string;
   scPriorityId: string | undefined;
-  category: string; // formatted SC Priority name, or "—"
+  category: string; // vendor Category — from cfm_finance_ap (Aging) by vendor name, falling back to cfm_insurancecompany by Code; never from SC Priority. "—" if unresolved.
   code: string; // Sub Ledger Code (from cfm_insurancecompany via CompanyCode lookup, or cfm_plancode fallback)
   vendor: string; // Vendor Name (read-only from DotCare/insurance company)
   bu: string;

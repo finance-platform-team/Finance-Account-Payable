@@ -4,6 +4,7 @@ import { Cfm_tmshandoffsService } from "../generated/services/Cfm_tmshandoffsSer
 import type { Cfm_tmshandoffsBase } from "../generated/models/Cfm_tmshandoffsModel";
 import AssigneeLookup from "./AssigneeLookup";
 import { useToast } from "../lib/ToastContext";
+import { computeDecisionSla } from "../lib/decisionSla";
 interface CreateDecisionModalProps {
   open: boolean;
   sectionName: string;
@@ -131,21 +132,7 @@ const [errorMsg, setErrorMsg] = useState<string | null>(null);
     setSubmitting(true);
 
     try {
-      let sla: string | undefined;
-      try {
-        const startParts = start.split("-").map(Number);
-        const startDateObj = new Date(startParts[0], startParts[1] - 1, startParts[2]);
-        const dueParts = dueDate.split("-").map(Number);
-        const dueDateObj = new Date(dueParts[0], dueParts[1] - 1, dueParts[2]);
-        startDateObj.setHours(0, 0, 0, 0);
-        dueDateObj.setHours(0, 0, 0, 0);
-        const diffDays = Math.round(
-          (dueDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        sla = diffDays <= 3 ? diffDays * 24 + " h" : diffDays + " days";
-      } catch {
-        sla = undefined;
-      }
+      const sla = computeDecisionSla(start, dueDate);
 
       const fromWhere = resolveFromWhere(sectionName);
 

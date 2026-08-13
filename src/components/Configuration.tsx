@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import RoleAccessConfig from "./RoleAccessConfig";
+import SlaConfig from "./SlaConfig";
 import "../styles/CashFlowStatement.css";
 
 type ConfigSubScreen = "role" | "sla";
@@ -33,24 +34,38 @@ export default function ConfigurationTab() {
         {/* ── SUBNAV ── */}
         <div id="config-subnav" style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "1px solid var(--border)" }}>
           <button
-            className="sb-item"
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              width: "auto",
+              flex: "0 0 auto",
+              padding: "9px 18px",
               borderRadius: "var(--r-md) var(--r-md) 0 0",
+              border: "none",
+              cursor: "pointer",
+              font: "600 12.5px var(--sans)",
               ...(subScreen === "role"
                 ? { background: "var(--gold-dark)", color: "#fff" }
-                : {}),
+                : { background: "transparent", color: "var(--muted)" }),
             }}
             onClick={() => setSubScreen("role")}
           >
             <span>Role Access</span>
           </button>
           <button
-            className="sb-item"
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              width: "auto",
+              flex: "0 0 auto",
+              padding: "9px 18px",
               borderRadius: "var(--r-md) var(--r-md) 0 0",
+              border: "none",
+              cursor: "pointer",
+              font: "600 12.5px var(--sans)",
               ...(subScreen === "sla"
                 ? { background: "var(--gold-dark)", color: "#fff" }
-                : {}),
+                : { background: "transparent", color: "var(--muted)" }),
             }}
             onClick={() => setSubScreen("sla")}
           >
@@ -59,11 +74,7 @@ export default function ConfigurationTab() {
         </div>
 
         {subScreen === "role" && <RoleAccessConfig />}
-        {subScreen === "sla" && (
-          <div className="pp-empty" style={{ padding: 48 }}>
-            SLA &amp; Escalation configuration is coming soon.
-          </div>
-        )}
+        {subScreen === "sla" && <SlaConfig />}
       </div>
     </div>
   );

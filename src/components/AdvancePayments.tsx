@@ -14,6 +14,7 @@ import type {
 } from "../types/advancePayment";
 import { advStatusMeta, ADV_PER_PAGE } from "../types/advancePayment";
 import { useToast } from "../lib/ToastContext";
+import { exportRowsToXLS, exportFilenameStamp } from "../lib/xlsExport";
 import { useCurrentUser } from "../lib/CurrentUserContext";
 import "../styles/CashFlowStatement.css";
 
@@ -52,6 +53,7 @@ interface AdvFormState {
   code: string;
   name: string;
   bu: string;
+  category: string;
   amount: string;
   date: string; // "YYYY-MM-DD"
   notes: string;
@@ -62,6 +64,7 @@ const EMPTY_ADV_FORM: AdvFormState = {
   code: "",
   name: "",
   bu: "",
+  category: "",
   amount: "",
   date: "",
   notes: "",
@@ -128,7 +131,7 @@ export default function AdvancePaymentsTab() {
       if (dateFrom && (!r.dateRaw || r.dateRaw < dateFrom)) return false;
       if (dateTo && (!r.dateRaw || r.dateRaw > dateTo)) return false;
       if (q) {
-        const combined = `${r.vendorCode} ${r.vendorName} ${r.notes || ""} ${r.requestedBy || ""}`.toLowerCase();
+        const combined = `${r.vendorCode} ${r.vendorName} ${r.notes || ""} ${r.requestedBy || ""} ${r.category || ""}`.toLowerCase();
         if (!combined.includes(q)) return false;
       }
       return true;
@@ -144,6 +147,27 @@ export default function AdvancePaymentsTab() {
   const totalPages = Math.max(1, Math.ceil(totalRows / ADV_PER_PAGE));
   const start = (page - 1) * ADV_PER_PAGE;
   const pageRows = filteredLines.slice(start, start + ADV_PER_PAGE);
+
+  // ── Export — mirrors exportAdvancePaymentsXLS() ──
+  function handleExport() {
+    const headers = ["Code", "Name", "BU", "Category", "Advance Payment Amount", "Date", "Notes", "Requested By", "Status"];
+    const exportRows = filteredLines.map((req) => [
+      req.vendorCode || "-",
+      req.vendorName || "-",
+      req.bu || "-",
+      req.category || "-",
+      Number(req.amount || 0),
+      req.date || "-",
+      req.notes || "-",
+      req.requestedBy || "-",
+      advStatusMeta(req.statusValue).label,
+    ]);
+    if (!exportRowsToXLS(`Advance_Payments_${exportFilenameStamp()}`, headers, exportRows)) {
+      showToast("Nothing to Export", "No rows match the current filters.", "alert");
+      return;
+    }
+    showToast("Exported", `${exportRows.length} row(s) exported to Excel.`, "success");
+  }
 
   // ── Pagination — mirrors ApAgingTab's numbered page buttons ──
   function goToPage(p: number) {
@@ -221,6 +245,7 @@ export default function AdvancePaymentsTab() {
       code: req.vendorCode === "-" ? "" : req.vendorCode,
       name: req.vendorName === "-" ? "" : req.vendorName,
       bu: req.bu && req.bu !== "-" ? req.bu : "",
+      category: req.category && req.category !== "-" ? req.category : "",
       amount: req.amount ? fmtAmountEnUS(req.amount) : "",
       date: req.dateRaw || "",
       notes: req.notes || "",
@@ -230,6 +255,7 @@ export default function AdvancePaymentsTab() {
       name: req.vendorName,
       code: req.vendorCode,
       bu: req.bu && req.bu !== "-" ? req.bu : "",
+      category: req.category && req.category !== "-" ? req.category : "",
     });
     setNameStatus(req.vendorName && req.vendorName !== "-" ? "found" : "idle");
     setFormOpen(true);
@@ -242,7 +268,7 @@ export default function AdvancePaymentsTab() {
   async function handleCodeLookup(code: string) {
     const trimmed = code.trim();
     if (trimmed.length < 2) {
-      setForm((f) => ({ ...f, name: "", bu: "" }));
+      setForm((f) => ({ ...f, name: "", bu: "", category: "" }));
       setMatchedCompany(null);
       setNameStatus("idle");
       return;
@@ -251,7 +277,12 @@ export default function AdvancePaymentsTab() {
       const comp = await lookupCompanyByCode(trimmed);
       setForm((f) => {
         if (f.code.trim() !== trimmed) return f; // stale response, code changed since
-        return { ...f, name: comp ? comp.name : "Company not found", bu: comp ? comp.bu || "-" : "" };
+        return {
+          ...f,
+          name: comp ? comp.name : "Company not found",
+          bu: comp ? comp.bu || "-" : "",
+          category: comp ? comp.category || "-" : "",
+        };
       });
       if (comp) {
         setMatchedCompany(comp);
@@ -263,7 +294,7 @@ export default function AdvancePaymentsTab() {
     } catch (e) {
       console.warn("Insurance company lookup failed:", e);
       setMatchedCompany(null);
-      setForm((f) => (f.code.trim() !== trimmed ? f : { ...f, name: "Lookup error", bu: "" }));
+      setForm((f) => (f.code.trim() !== trimmed ? f : { ...f, name: "Lookup error", bu: "", category: "" }));
       setNameStatus("error");
     }
   }
@@ -306,6 +337,7 @@ export default function AdvancePaymentsTab() {
           notes: form.notes.trim(),
           companyName: form.name.trim(),
           bu: matchedCompany?.bu || "",
+          category: matchedCompany?.category || "",
           matchedCompanyId: matchedCompany?.id || null,
         },
         form.editId || undefined,
@@ -400,6 +432,9 @@ export default function AdvancePaymentsTab() {
             <button className="btn btn-outline" onClick={loadLines}>
               Refresh Data
             </button>
+            <button className="btn btn-outline" onClick={handleExport}>
+              Export
+            </button>
             {!formOpen && hasRole("SC") && (
               <button className="btn btn-primary" onClick={openAddForm}>
                 + Add advance payment
@@ -457,6 +492,19 @@ export default function AdvancePaymentsTab() {
                   style={{
                     color: form.bu ? "var(--green-dark)" : "var(--muted)",
                     fontWeight: form.bu ? 700 : 600,
+                  }}
+                />
+              </div>
+              <div className="form-field">
+                <label className="field-lbl">Category</label>
+                <input
+                  className="field-input"
+                  type="text"
+                  value={form.category}
+                  disabled
+                  style={{
+                    color: form.category ? "var(--green-dark)" : "var(--muted)",
+                    fontWeight: form.category ? 700 : 600,
                   }}
                 />
               </div>
@@ -586,6 +634,7 @@ export default function AdvancePaymentsTab() {
               <div className="pp-header-cell">Company Code</div>
               <div className="pp-header-cell">Company Name</div>
               <div className="pp-header-cell">BU</div>
+              <div className="pp-header-cell">Category</div>
               <div className="pp-header-cell" style={{ textAlign: "center" }}>Amount</div>
               <div className="pp-header-cell">Date</div>
               <div className="pp-header-cell">Notes</div>
@@ -616,6 +665,7 @@ export default function AdvancePaymentsTab() {
                     <div className="pp-cell" style={{ font: "700 11px var(--mono)", color: "var(--muted)" }}>
                       {req.bu || "-"}
                     </div>
+                    <div className="pp-cell pp-cell--muted">{req.category || "-"}</div>
                     <div className="pp-cell" style={{ font: "700 12px var(--mono)", color: "var(--gold-dark)", textAlign: "center" }}>
                       {fmtAmountEnUS(req.amount)}
                     </div>

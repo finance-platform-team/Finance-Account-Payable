@@ -15,6 +15,7 @@ interface RawAdvancePaymentRow {
   cfm_notes?: string;
   cfm_companyname?: string;
   cfm_bu?: string;
+  cfm_category?: string;
   cfm_statusofadvancepayment?: number;
   createdon?: string;
   "_cfm_requestedby_value@OData.Community.Display.V1.FormattedValue"?: string;
@@ -26,6 +27,7 @@ interface RawInsuranceCompanyLookupRow {
   cfm_insurancecompanyid?: string;
   cfm_name?: string;
   cfm_code?: string;
+  cfm_category?: string;
   _cfm_bu_value?: string;
   "_cfm_bu_value@OData.Community.Display.V1.FormattedValue"?: string;
 }
@@ -54,6 +56,7 @@ export async function fetchAdvancePayments(): Promise<AdvancePayment[]> {
       "cfm_notes",
       "cfm_companyname",
       "cfm_bu",
+      "cfm_category",
       "cfm_statusofadvancepayment",
       "createdon",
       "_cfm_requestedby_value",
@@ -63,7 +66,6 @@ export async function fetchAdvancePayments(): Promise<AdvancePayment[]> {
     maxPageSize: 1000,
     top: 2000,
   } as never);
-console.log("ADV DEBUG (first row):", JSON.stringify(result.data?.[0], null, 2));
   return (result.data ?? []).map((r: RawAdvancePaymentRow) => {
     const statusVal = r.cfm_statusofadvancepayment ?? 0;
     return {
@@ -79,6 +81,7 @@ console.log("ADV DEBUG (first row):", JSON.stringify(result.data?.[0], null, 2))
       status: advStatusMeta(statusVal).label,
       requestedBy:
         r["_cfm_requestedby_value@OData.Community.Display.V1.FormattedValue"] || "-",
+      category: r.cfm_category || "-",
     };
   });
 }
@@ -94,14 +97,13 @@ export async function lookupCompanyByCode(
   if (trimmed.length < 2) return null;
 
   const result = await Cfm_insurancecompaniesService.getAll({
-    select: ["cfm_insurancecompanyid", "cfm_name", "cfm_code", "_cfm_bu_value"],
+    select: ["cfm_insurancecompanyid", "cfm_name", "cfm_code", "cfm_category", "_cfm_bu_value"],
     filter: `cfm_code eq '${trimmed.replace(/'/g, "''")}'`,
     top: 1,
   } as never);
 
   const rows = (result.data ?? []) as RawInsuranceCompanyLookupRow[];
   if (rows.length === 0) return null;
-  console.log("ADV VENDOR LOOKUP DEBUG (raw company):", JSON.stringify(rows[0], null, 2));
 
   const comp = rows[0];
   return {
@@ -109,6 +111,7 @@ export async function lookupCompanyByCode(
     name: comp.cfm_name || "-",
     code: comp.cfm_code || trimmed,
     bu: comp["_cfm_bu_value@OData.Community.Display.V1.FormattedValue"] || "",
+    category: comp.cfm_category || "",
   };
 }
 
@@ -119,6 +122,7 @@ export interface AdvancePaymentSubmitPayload {
   notes: string;
   companyName: string;
   bu: string;
+  category: string;
   matchedCompanyId: string | null;
 }
 
@@ -143,6 +147,7 @@ export async function submitAdvancePayment(
     cfm_notes: payload.notes,
     cfm_companyname: payload.companyName,
     cfm_bu: payload.bu,
+    cfm_category: payload.category,
     cfm_statusofadvancepayment: 0,
   };
 

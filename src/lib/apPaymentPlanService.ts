@@ -16,11 +16,16 @@ import type {
 interface RawFinanceApRow {
   cfm_vendorenglishname?: string;
   cfm_dueamount?: number;
+  cfm_category?: string;
+  "cfm_category@OData.Community.Display.V1.FormattedValue"?: string;
 }
 
 interface RawInsuranceCompanyRow {
   cfm_insurancecompanyid?: string;
   cfm_buname?: string;
+  cfm_code?: string;
+  cfm_category?: string;
+  "cfm_category@OData.Community.Display.V1.FormattedValue"?: string;
 }
 
 interface RawPaymentPlanRow {
@@ -131,6 +136,10 @@ function normalizeVendorKey(name: string | undefined | null): string {
   return (name || "").trim().toLowerCase();
 }
 
+function normalizeCodeKey(code: string | undefined | null): string {
+  return (code || "").trim().toLowerCase();
+}
+
 export async function fetchAgingDuesByVendor(): Promise<Record<string, number>> {
   const result = await Cfm_finance_apsService.getAll({
     select: ["cfm_vendorenglishname", "cfm_dueamount"],
@@ -143,6 +152,70 @@ export async function fetchAgingDuesByVendor(): Promise<Record<string, number>> 
     if (key) map[key] = Number(r.cfm_dueamount || 0);
   });
   return map;
+}
+
+/**
+ * Category source 1/2 — cfm_finance_ap (Aging), matched by vendor name —
+ * mirrors loadAgingDuesLookup()'s agingCategoryByVendor.
+ */
+export async function fetchAgingCategoryByVendor(): Promise<Record<string, string>> {
+  const result = await Cfm_finance_apsService.getAll({
+    select: ["cfm_vendorenglishname", "cfm_category"],
+    maxPageSize: 1000,
+    top: 2000,
+  });
+  const map: Record<string, string> = {};
+  (result.data ?? []).forEach((r: RawFinanceApRow) => {
+    const key = normalizeVendorKey(r.cfm_vendorenglishname);
+    if (!key) return;
+    const catVal =
+      r["cfm_category@OData.Community.Display.V1.FormattedValue"] || r.cfm_category;
+    if (catVal) map[key] = catVal;
+  });
+  return map;
+}
+
+/**
+ * Category source 2/2 — cfm_insurancecompany, matched by Code — mirrors
+ * loadAgingDuesLookup()'s companyCategoryByCode fallback.
+ */
+export async function fetchCompanyCategoryByCode(): Promise<Record<string, string>> {
+  const result = await Cfm_insurancecompaniesService.getAll({
+    select: ["cfm_code", "cfm_category"],
+    maxPageSize: 1000,
+    top: 2000,
+  });
+  const map: Record<string, string> = {};
+  (result.data ?? []).forEach((r: RawInsuranceCompanyRow) => {
+    const key = normalizeCodeKey(r.cfm_code);
+    if (!key) return;
+    const catVal =
+      r["cfm_category@OData.Community.Display.V1.FormattedValue"] || r.cfm_category;
+    if (catVal) map[key] = catVal;
+  });
+  return map;
+}
+
+/**
+ * Vendor Category — 1) cfm_finance_ap (Aging) by vendor name, 2) falling
+ * back to cfm_insurancecompany by Code. Never sourced from the linked SC
+ * Priority record — mirrors getVendorCategory().
+ */
+export function getVendorCategory(
+  vendorName: string | undefined | null,
+  companyCode: string | undefined | null,
+  agingCategoryByVendor: Record<string, string>,
+  companyCategoryByCode: Record<string, string>,
+): string | null {
+  const vendorKey = normalizeVendorKey(vendorName);
+  if (vendorKey && Object.prototype.hasOwnProperty.call(agingCategoryByVendor, vendorKey)) {
+    return agingCategoryByVendor[vendorKey];
+  }
+  const codeKey = normalizeCodeKey(companyCode);
+  if (codeKey && Object.prototype.hasOwnProperty.call(companyCategoryByCode, codeKey)) {
+    return companyCategoryByCode[codeKey];
+  }
+  return null;
 }
 
 /**
@@ -176,6 +249,8 @@ export function mapPaymentPlanRecord(
   r: RawPaymentPlanRow,
   agingDuesByVendor: Record<string, number>,
   insuranceCompanyBUs: Record<string, string>,
+  agingCategoryByVendor: Record<string, string> = {},
+  companyCategoryByCode: Record<string, string> = {},
 ): PPLine {
   const companyCodeFormatted: string = r.cfm_companycodename || "";
   const companyName: string = r.cfm_companyname || "";
@@ -195,7 +270,8 @@ export function mapPaymentPlanRecord(
     companyCode = r.cfm_plancode;
   }
 
-  const category: string = r.cfm_scpriorityname || "—";
+  const category: string =
+    getVendorCategory(vendorName, companyCode, agingCategoryByVendor, companyCategoryByCode) || "—";
   const treasuryLabel = getTreasuryStatusLabel(r.cfm_treasurystatus);
   const statusLabel = getPaymentPlanStatusLabel(r.cfm_paymentplanstatus);
 
@@ -239,9 +315,17 @@ export function mapPaymentPlanRecord(
  * screen shows every stage) — mirrors loadPaymentPlanFromDataverse().
  */
 export async function fetchPaymentPlanLines(): Promise<PPLine[]> {
-  const [agingDuesByVendor, insuranceCompanyBUs, ppResult] = await Promise.all([
+  const [
+    agingDuesByVendor,
+    insuranceCompanyBUs,
+    agingCategoryByVendor,
+    companyCategoryByCode,
+    ppResult,
+  ] = await Promise.all([
     fetchAgingDuesByVendor(),
     fetchInsuranceCompanyBUs(),
+    fetchAgingCategoryByVendor(),
+    fetchCompanyCategoryByCode(),
     Cfm_paymentplansService.getAll({
       select: PP_LINE_SELECT,
       maxPageSize: 1000,
@@ -250,7 +334,7 @@ export async function fetchPaymentPlanLines(): Promise<PPLine[]> {
   ]);
 
   return (ppResult.data ?? []).map((r: RawPaymentPlanRow) =>
-    mapPaymentPlanRecord(r, agingDuesByVendor, insuranceCompanyBUs),
+    mapPaymentPlanRecord(r, agingDuesByVendor, insuranceCompanyBUs, agingCategoryByVendor, companyCategoryByCode),
   );
 }
 

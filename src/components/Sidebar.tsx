@@ -1,5 +1,7 @@
 import { LineChart, ListChecks, FileText, Menu, Settings } from "lucide-react";
 import { useCurrentUser } from "../lib/CurrentUserContext";
+import { useGlobalRegion } from "../lib/GlobalRegionContext";
+import type { BudgetRegion } from "../types/apBudgetRequest";
 export type PageKey = "cfs" | "tms" | "ap" | "pp" | "pp-sc" | "adv" | "treasury"| "config"; interface SidebarProps {
   activePage: PageKey;
   onNavigate: (page: PageKey) => void;
@@ -17,6 +19,7 @@ export default function Sidebar({
   onCloseMobile,
 }: SidebarProps) {
   const { loading: rolesLoading, allowedPages } = useCurrentUser();
+  const { globalRegion, setGlobalRegion } = useGlobalRegion();
 
   // Mirrors applyRoleSecurity(): everything is hidden until roles resolve
   // (no flash of menu items the user isn't allowed to see), then only the
@@ -62,6 +65,23 @@ export default function Sidebar({
   </button>
   <div className="sb-logo-text">CFM Suite</div>
 </div>
+    {!collapsed && globalRegion && (
+      <div style={{ padding: "0 14px 10px 14px" }}>
+        <div className="select-wrap" style={{ display: "block" }}>
+          <select
+            className="field-input"
+            value={globalRegion}
+            onChange={(e) => setGlobalRegion(e.target.value as BudgetRegion)}
+            style={{ paddingRight: 32, width: "100%", fontSize: 12 }}
+            title="Global Region — sets your default region across the app"
+          >
+            <option value="Egypt">Egypt</option>
+            <option value="KSA">Saudi Arabia</option>
+          </select>
+          <span className="sel-arrow">▾</span>
+        </div>
+      </div>
+    )}
     <div className="sb-section">Main</div>
       {isVisible("cfs") && (
         <button

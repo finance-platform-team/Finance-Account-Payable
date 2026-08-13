@@ -9,6 +9,8 @@ import {
   saveTreasuryBudgetCells,
   treasuryBudgetGridHasAnyData,
 } from "../lib/treasuryBudgetService";
+import { fetchActualAmountsByBuMonth } from "../lib/apBudgetRequestService";
+import { useGlobalRegion } from "../lib/GlobalRegionContext";
 import type { TreasuryBudgetGrid } from "../lib/treasuryBudgetService";
 import type { BudgetRegion, MonthKey } from "../types/apBudgetRequest";
 import { MONTH_KEYS } from "../types/apBudgetRequest";
@@ -27,9 +29,15 @@ function cellKey(bu: string, m: MonthKey): string {
 
 export default function TreasuryBudgetPanel() {
   const { showToast } = useToast();
+  const { globalRegion } = useGlobalRegion();
 
   const [year, setYear] = useState("2026");
-  const [region, setRegion] = useState<BudgetRegion>("Egypt");
+  const [region, setRegion] = useState<BudgetRegion>(globalRegion || "Egypt");
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (globalRegion) setRegion(globalRegion);
+  }, [globalRegion]);
   const [grid, setGrid] = useState<TreasuryBudgetGrid | null>(null);
   const [hasData, setHasData] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -37,12 +45,35 @@ export default function TreasuryBudgetPanel() {
   const [saving, setSaving] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [initializing, setInitializing] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [showActual, setShowActual] = useState(false);
+  const [actualsLoading, setActualsLoading] = useState(false);
+  const [actuals, setActuals] = useState<Record<string, Partial<Record<MonthKey, number>>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleToggleShowActual() {
+    const next = !showActual;
+    setShowActual(next);
+    if (next && Object.keys(actuals).length === 0) {
+      setActualsLoading(true);
+      try {
+        const map = await fetchActualAmountsByBuMonth(year, region);
+        setActuals(map);
+      } catch (e) {
+        console.error("Error loading Actual Amount data:", e);
+        showToast("Error", "Could not load Actual Amount data.", "alert");
+      } finally {
+        setActualsLoading(false);
+      }
+    }
+  }
 
   const loadGrid = useCallback(async () => {
     if (!year || !region) return;
     setLoading(true);
     setEditMode(false);
+    setShowActual(false);
+    setActuals({});
     try {
       const rows = await fetchBudgetRequests(year, region);
       const buList = getBUNamesForRegion(region);
@@ -121,8 +152,8 @@ export default function TreasuryBudgetPanel() {
     }
   }
 
-  async function handleSave() {
-    if (!grid) return;
+  function buildDirtyCells(): { bu: string; monthKey: MonthKey; value: number | null; guid: string | null }[] {
+    if (!grid) return [];
     const cells: { bu: string; monthKey: MonthKey; value: number | null; guid: string | null }[] = [];
     grid.rows.forEach((r) => {
       MONTH_KEYS.forEach((m) => {
@@ -132,9 +163,23 @@ export default function TreasuryBudgetPanel() {
         cells.push({ bu: r.bu, monthKey: m, value: isNaN(num) ? 0 : num, guid: r.monthGuids[m] });
       });
     });
+    return cells;
+  }
 
-    if (cells.length === 0) {
+  // ── Save — mirrors saveTreasuryBudget() opening a confirm step before the
+  // actual write (CFM_APNew.html: modal-treasury-confirm / confirmSaveTreasuryBudget()). ──
+  function handleSave() {
+    if (buildDirtyCells().length === 0) {
       showToast("Warning", "No active budget inputs to save.", "alert");
+      return;
+    }
+    setConfirmSaveOpen(true);
+  }
+
+  async function handleConfirmSave() {
+    const cells = buildDirtyCells();
+    if (cells.length === 0) {
+      setConfirmSaveOpen(false);
       return;
     }
 
@@ -142,6 +187,7 @@ export default function TreasuryBudgetPanel() {
     try {
       await saveTreasuryBudgetCells(year, region, cells);
       showToast("Saved", `Monthly budget for ${region} ${year} saved to Dataverse.`, "success");
+      setConfirmSaveOpen(false);
       setEditMode(false);
       await loadGrid();
     } catch (e) {
@@ -287,6 +333,9 @@ export default function TreasuryBudgetPanel() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
+          <button className="btn btn-outline" onClick={handleToggleShowActual} disabled={actualsLoading}>
+            {actualsLoading ? "Loading…" : showActual ? "Hide Actual" : "Show Actual"}
+          </button>
           <button className="btn btn-outline" onClick={handleExport}>
             Export
           </button>
@@ -373,32 +422,48 @@ export default function TreasuryBudgetPanel() {
                 {grid.rows.map((row) => (
                   <tr key={row.bu}>
                     <td className="budget-grid-td">{row.bu}</td>
-                    {MONTH_KEYS.map((m) => (
-                      <td key={m} className="budget-grid-td">
-                        {editMode ? (
-                          <input
-                            type="text"
-                            value={drafts[cellKey(row.bu, m)] ?? ""}
-                            onChange={(e) => handleCellChange(row.bu, m, e.target.value)}
-                            onBlur={(e) => handleCellBlur(row.bu, m, e.target.value)}
-                            style={{
-                              width: 90,
-                              textAlign: "right",
-                              border: "1px solid var(--border)",
-                              borderRadius: 6,
-                              padding: "6px 8px",
-                              font: "600 12px var(--mono)",
-                              color: "var(--brand-black)",
-                              background: "#fff",
-                            }}
-                          />
-                        ) : row.amounts[m] ? (
-                          fmt(row.amounts[m])
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                    ))}
+                    {MONTH_KEYS.map((m) => {
+                      const actualVal = actuals[row.bu]?.[m];
+                      const isOverBudget = actualVal != null && actualVal > (row.amounts[m] || 0);
+                      return (
+                        <td key={m} className="budget-grid-td">
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={drafts[cellKey(row.bu, m)] ?? ""}
+                              onChange={(e) => handleCellChange(row.bu, m, e.target.value)}
+                              onBlur={(e) => handleCellBlur(row.bu, m, e.target.value)}
+                              style={{
+                                width: 90,
+                                textAlign: "right",
+                                border: "1px solid var(--border)",
+                                borderRadius: 6,
+                                padding: "6px 8px",
+                                font: "600 12px var(--mono)",
+                                color: "var(--brand-black)",
+                                background: "#fff",
+                              }}
+                            />
+                          ) : row.amounts[m] ? (
+                            fmt(row.amounts[m])
+                          ) : (
+                            "-"
+                          )}
+                          {showActual && (
+                            <div
+                              style={{
+                                marginTop: 4,
+                                font: `${isOverBudget ? 700 : 500} 9.5px var(--mono)`,
+                                color: isOverBudget ? "var(--danger)" : "var(--info)",
+                              }}
+                            >
+                              {isOverBudget ? "⚠ " : ""}
+                              Actual: {actualVal == null ? "—" : fmt(actualVal)}
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
                     <td className="budget-grid-td budget-grid-total-td">{fmt(row.total)}</td>
                   </tr>
                 ))}
@@ -424,6 +489,32 @@ export default function TreasuryBudgetPanel() {
           </>
         )}
       </div>
+
+      {confirmSaveOpen && (
+        <div className="modal-overlay active" onClick={() => !saving && setConfirmSaveOpen(false)}>
+          <div className="modal-box" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <div className="modal-title">Save Monthly Budget?</div>
+              <button className="modal-close" onClick={() => setConfirmSaveOpen(false)} disabled={saving}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ font: "500 12.5px var(--body)", color: "var(--text-body)", lineHeight: 1.6 }}>
+                This will save the entered budget amounts for {region} {year} to Dataverse.
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-outline" onClick={() => setConfirmSaveOpen(false)} disabled={saving}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={handleConfirmSave} disabled={saving}>
+                {saving ? "Saving…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
