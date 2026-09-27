@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
+import { useGlobalRegion, regionToGroupCode } from "../lib/GlobalRegionContext";
 import {
   applyApAgingLocalFilters,
   buildStagedApVendor,
@@ -35,7 +36,19 @@ export default function ApAgingTab() {
   const { showToast } = useToast();
   const [sendConfirmOpen, setSendConfirmOpen] = useState(false);
   const [sending, setSending] = useState(false);
-  const [group, setGroup] = useState<ApAgingGroup>("EGY");
+  // Group defaults to the app-wide Global Region ("Egypt"→EGY / "KSA"→KSA),
+  // and keeps following it when the user changes the region from the sidebar —
+  // unless they've manually picked a Group here, in which case their choice wins.
+  const { globalRegion } = useGlobalRegion();
+  const [group, setGroup] = useState<ApAgingGroup>(
+    globalRegion ? (regionToGroupCode(globalRegion) as ApAgingGroup) : "EGY",
+  );
+  const userOverrodeGroupRef = useRef(false);
+  useEffect(() => {
+    if (!globalRegion || userOverrodeGroupRef.current) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setGroup(regionToGroupCode(globalRegion) as ApAgingGroup);
+  }, [globalRegion]);
   const [vendorSearch, setVendorSearch] = useState("");
   const [tier] = useState<ApAgingTier>("All"); // no functional UI yet — cfm_finance_ap never carries a tier field (see chat history)
   const [bracket, setBracket] = useState<ApAgingBracket>("All");
@@ -339,7 +352,10 @@ export default function ApAgingTab() {
             <div className="select-wrap">
               <select
                 value={group}
-                onChange={(e) => setGroup(e.target.value as ApAgingGroup)}
+                onChange={(e) => {
+                  userOverrodeGroupRef.current = true;
+                  setGroup(e.target.value as ApAgingGroup);
+                }}
               >
                 <option value="EGY">Egypt</option>
                 <option value="KSA">KSA</option>
